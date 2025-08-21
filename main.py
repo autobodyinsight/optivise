@@ -1,39 +1,39 @@
-from fastapi import FastAPI, File, UploadFile
-from fastapi.responses import HTMLResponse
-import tempfile
-import os
-import logging
-
+from fastapi import FastAPI, UploadFile, File
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from typing import List
 from pdf_parser import parse_pdf
 from rule_engine import run_rules
-from report_formatter import format_report_html
+from feedback_trainer import log_feedback
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+app = FastAPI(title="Optivise Audit Engine")
 
-app = FastAPI()
+# Optional: allow frontend or external tools to connect
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-@app.post("/audit", response_class=HTMLResponse)
-async def audit_estimate(file: UploadFile = File(...)):
-    tmp_path = None
-    try:
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
-            tmp.write(await file.read())
-            tmp_path = tmp.name
+# ---------- Models ----------
+class FeedbackRequest(BaseModel):
+    pdf_id: str
+    missed_item: str
+    context_lines: List[str]
 
-        parsed_data = parse_pdf(tmp_path)
-        logger.info("🔍 Parsed PDF data: %s", parsed_data)
+# ---------- Endpoints ----------
+@app.post("/upload")
+async def upload_pdf(file: UploadFile = File(...)):
+    lines = parse_pdf(file)
+    suggestions = run_rules(lines)
+    return {"suggestions": suggestions}
 
-        results = run_rules(parsed_data)
-        logger.info("🧠 Rule results: %s", results)
-
-        report_html = format_report_html(results)
-        return report_html
-
-    except Exception as e:
-        logger.error("❌ Internal Server Error: %s", str(e))
-        return HTMLResponse(content="Internal Server Error", status_code=500)
-
-    finally:
-        if tmp_path and os.path.exists(tmp_path):
-            os.remove(tmp_path)
+@app.post("/feedback")
+async def submit_feedback(feedback: FeedbackRequest):
+    log_feedback(
+        pdf_id=feedback.pdf_id,
+        missed_item=feedback.missed_item,
+        context_lines=feedback.context_lines
+    )
+    return {"status": "feedback logged"}
