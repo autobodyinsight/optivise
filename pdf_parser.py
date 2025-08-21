@@ -1,6 +1,7 @@
 import re
 import pdfplumber
-from app.utils import normalize
+from utils import normalize
+
 
 def parse_pdf(file_path: str) -> dict:
     raw_lines = []
