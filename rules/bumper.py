@@ -1,23 +1,36 @@
-from utils.text_helpers import match_keywords, deduplicate
+import re
+from app.utils import normalize, suggest_if_missing
 
-KEYWORD_GROUPS = {
-    "replace": ["replace", "remove", "install"],
-    "repair": ["repair", "refinish", "straighten"],
-    "bumper": ["bumper", "cover", "fascia"]
-}
+REPAIR_OPS = ["rpr", "repair", "rep"]
+BUMPER_PARTS = [
+    "bumper", "bumper cover", "fascia", "facebar",
+    "bumper assy", "bumper assembly"
+]
 
-SUGGESTIONS = {
-    "replace": "Consider replacing the front bumper if damage is extensive.",
-    "repair": "Repair may be sufficient for minor bumper damage.",
-}
+MISSED_ITEMS = [
+    "bumper repair kit",
+    "flex additive",
+    "mask for texture (if applicable)",
+    "mask for two tone (if applicable)",
+    "ADD for parking sensors (if applicable)",
+    "ADD for auto park (if applicable)",
+    "ADD for headlamp washers (if applicable)"
+]
 
-def evaluate_bumper(lines: list) -> list:
-    matched = match_keywords(lines, KEYWORD_GROUPS)
-    suggestions = []
+def bumper_rule(lines, seen):
+    for line in lines:
+        normalized = normalize(line)
+        words = normalized.split()
 
-    if matched["replace"] and matched["bumper"]:
-        suggestions.append(SUGGESTIONS["replace"])
-    elif matched["repair"] and matched["bumper"]:
-        suggestions.append(SUGGESTIONS["repair"])
+        op_found = any(op in words for op in REPAIR_OPS)
+        part_found = any(re.search(rf"\b{re.escape(part.lower())}\b", normalized) for part in BUMPER_PARTS)
 
-    return deduplicate(suggestions)
+        if op_found and part_found:
+            suggestions = suggest_if_missing(lines, MISSED_ITEMS, seen)
+            if suggestions:
+                return ("BUMPER REPAIR", suggestions)
+
+    return None
+
+def register():
+    return [bumper_rule]
