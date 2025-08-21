@@ -4,9 +4,9 @@ import tempfile
 import os
 import logging
 
-from app.pdf_parser import parse_pdf
-from app.rule_engine import run_rules
-from app.report_formatter import format_report_html
+from pdf_parser import parse_pdf
+from rule_engine import run_rules
+from report_formatter import format_report_html
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
