@@ -7,7 +7,7 @@ def load_rules():
     """Dynamically loads all rule functions from app.rules modules."""
     rule_funcs = []
     for _, module_name, _ in pkgutil.iter_modules(rules.__path__):
-        module = importlib.import_module(f"app.rules.{module_name}")
+        module = importlib.import_module(f"rules.{module_name}")
         if hasattr(module, "register"):
             rule_funcs.extend(module.register())
     return rule_funcs

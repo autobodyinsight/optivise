@@ -35,7 +35,7 @@ async def upload_pdf(file: UploadFile = File(...)):
             tmp_path = tmp.name
 
         parsed = parse_pdf(tmp_path)
-        suggestions = run_rules(parsed["raw_lines"])
+        suggestions = run_rules(parsed)
 
         os.remove(tmp_path)  # Optional cleanup
 
