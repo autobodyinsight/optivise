@@ -1,7 +1,10 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
+import tempfile
+import os
+
 from pdf_parser import parse_pdf
 from rule_engine import run_rules
 from feedback_trainer import log_feedback
@@ -25,9 +28,20 @@ class FeedbackRequest(BaseModel):
 # ---------- Endpoints ----------
 @app.post("/upload")
 async def upload_pdf(file: UploadFile = File(...)):
-    lines = parse_pdf(file)
-    suggestions = run_rules(lines)
-    return {"suggestions": suggestions}
+    try:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+            contents = await file.read()
+            tmp.write(contents)
+            tmp_path = tmp.name
+
+        parsed = parse_pdf(tmp_path)
+        suggestions = run_rules(parsed["raw_lines"])
+
+        os.remove(tmp_path)  # Optional cleanup
+
+        return {"suggestions": suggestions, "parts": parsed["parts"]}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
 
 @app.post("/feedback")
 async def submit_feedback(feedback: FeedbackRequest):
