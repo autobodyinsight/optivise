@@ -1,7 +1,7 @@
 import importlib
 import pkgutil
 import rules
-from app.utils import normalize
+from utils import normalize
 
 def load_rules():
     """Dynamically loads all rule functions from app.rules modules."""
