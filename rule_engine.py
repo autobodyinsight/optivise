@@ -1,6 +1,6 @@
 import importlib
 import pkgutil
-from app import rules
+import rules
 from app.utils import normalize
 
 def load_rules():
