@@ -4,7 +4,7 @@ import rules
 from utils import normalize
 
 def load_rules():
-    """Dynamically loads all rule functions from app.rules modules."""
+    """Dynamically loads all rule functions from rules modules."""
     rule_funcs = []
     for _, module_name, _ in pkgutil.iter_modules(rules.__path__):
         module = importlib.import_module(f"rules.{module_name}")
