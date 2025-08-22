@@ -39,7 +39,7 @@ async def upload_pdf(file: UploadFile = File(...)):
 
         os.remove(tmp_path)  # Optional cleanup
 
-        return {"suggestions": suggestions, "parts": parsed["parts"]}
+        return {"suggestions": suggestions,}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
 
