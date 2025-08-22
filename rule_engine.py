@@ -14,23 +14,27 @@ def load_rules():
 
 def run_rules(parsed_data: dict) -> list:
     """
-    Applies all registered audit rules to parsed estimate data.
+    Applies all registered audit rules to parsed estimate data,
+    ensuring suggestions are not duplicated across rules.
     """
     lines = parsed_data.get("raw_lines", [])
-    seen = set(normalize(line) for line in lines)
+    seen_lines = set(normalize(line) for line in lines)
+    seen_suggestions = set()
 
     results = []
     rules = load_rules()
 
     for rule in rules:
-        result = rule(lines, seen)
-        print(f"🛠️ Rule {rule.__name__} result:", result)  # Debug print
-
+        result = rule(lines, seen_lines | seen_suggestions)
         if result:
             rule_name, suggestions = result
-            results.append({
-                "rule": rule_name,
-                "suggestions": suggestions
-            })
+            deduped = [s for s in suggestions if normalize(s) not in seen_suggestions]
+            seen_suggestions.update(normalize(s) for s in deduped)
+
+            if deduped:
+                results.append({
+                    "rule": rule_name,
+                    "suggestions": deduped
+                })
 
     return results
