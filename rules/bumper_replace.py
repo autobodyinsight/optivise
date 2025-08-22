@@ -1,39 +1,33 @@
 import re
-from utils import normalize, suggest_if_missing
+from utils.matching import normalize_text
 
-REPLACE_OPS = [
-    "repl", "replace", "remove / replace", "remove and replace", "r&r"
-]
+REPLACE_OPS = ["replace", "install", "reinstall"]
+BUMPER_PARTS = ["bumper cover", "bumper", "bumper assembly"]
+EXCLUDED_SUFFIXES = ["rivet", "bracket", "retainer", "clip", "absorber"]
 
-BUMPER_PARTS = [
-    "bumper", "bumper cover", "fascia", "facebar", "bumper assy", "bumper assembly"
-]
+def contains_exact_phrase(norm_line, phrases):
+    return any(re.search(rf"\b{re.escape(phrase)}\b", norm_line) for phrase in phrases)
 
-MISSED_ITEMS = [
-    "adhesion promoter",
-    "flex additive",
-    "mask for texture (if applicable)",
-    "mask for two tone (if applicable)",
-    "IF APPLICABLE: add for parking sensors",
-    "IF APPLICABLE: add for auto park",
-    "IF APPLICABLE: add for headlamp washers"
-]
+def is_false_positive(norm_line):
+    return any(suffix in norm_line for suffix in EXCLUDED_SUFFIXES)
 
-def contains_exact_keyword(norm_line, keywords):
-    return any(re.search(rf"\b{re.escape(k)}\b", norm_line) for k in keywords)
-
-def bumper_replace_rule(lines, seen):
+def apply_rule(lines):
+    suggestions = []
     for line in lines:
-        norm_line = normalize(line)
+        norm_line = normalize_text(line)
 
-        op_found = contains_exact_keyword(norm_line, REPLACE_OPS)
-        part_found = contains_exact_keyword(norm_line, BUMPER_PARTS)
+        op_found = contains_exact_phrase(norm_line, REPLACE_OPS)
+        part_found = contains_exact_phrase(norm_line, BUMPER_PARTS)
 
-        if op_found and part_found:
-            suggestions = suggest_if_missing(lines, MISSED_ITEMS, seen)
-            return ("BUMPER_REPLACE", suggestions or [])
+        if op_found and part_found and not is_false_positive(norm_line):
+            suggestions.extend([
+                "adhesion promoter",
+                "IF APPLICABLE: add for parking sensors",
+                "IF APPLICABLE: add for auto park",
+                "IF APPLICABLE: add for headlamp washers"
+            ])
+            break  # Only trigger once per doc
 
+    if suggestions:
+        return {"rule": "BUMPER_REPLACE", "suggestions": suggestions}
     return None
-
-def register():
-    return [bumper_replace_rule]
