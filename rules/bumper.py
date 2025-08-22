@@ -1,5 +1,5 @@
 import re
-from app.utils import normalize, suggest_if_missing
+from utils import normalize, suggest_if_missing
 
 REPAIR_OPS = ["rpr", "repair", "rep"]
 BUMPER_PARTS = [
