@@ -8,7 +8,7 @@ FRONT_BUMPER_PARTS = [
 ]
 
 MISSED_ITEMS = [
-    "front bumper repair kit",
+    "bumper repair kit",
     "flex additive",
     "mask for texture (if applicable)",
     "mask for two tone (if applicable)",
@@ -17,7 +17,7 @@ MISSED_ITEMS = [
     "ADD for front headlamp washers (if applicable)"
 ]
 
-def front_bumper_rule(lines, seen):
+def bumper_rule(lines, seen):
     for line in lines:
         normalized = normalize(line)
         words = normalized.split()
@@ -33,4 +33,4 @@ def front_bumper_rule(lines, seen):
     return None
 
 def register():
-    return [front_bumper_rule]
+    return [bumper_rule]
