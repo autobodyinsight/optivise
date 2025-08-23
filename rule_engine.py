@@ -40,11 +40,10 @@ def run_rules(parsed_data: dict) -> list:
     return results
 
 if __name__ == "__main__":
-    lines = ["Repair front bumper cover", "Rep rear fascia"]
+    lines = ["Repair front bumper cover"]
     seen = set()
 
     from rules.bumper import bumper_rule
     from rules.rear_bumper import rear_bumper_rule
 
     print("Front bumper result:", bumper_rule(lines, seen))
-    print("Rear bumper result:", rear_bumper_rule(lines, seen))

@@ -1,36 +1,34 @@
-import re
-from utils import normalize, suggest_if_missing
+def bumper_rule(line, seen):
+    suggestions = []
 
-REPAIR_OPS = ["rpr", "repair", "rep"]
-FRONT_BUMPER_PARTS = [
-    "front bumper", "front bumper cover", "front fascia", "front facebar",
-    "front bumper assy", "front bumper assembly"
-]
+    # Normalize line
+    normalized = line.lower()
 
-MISSED_ITEMS = [
-    "bumper repair kit",
-    "flex additive",
-    "mask for texture (if applicable)",
-    "mask for two tone (if applicable)",
-    "ADD for front parking sensors (if applicable)",
-    "ADD for front auto park (if applicable)",
-    "ADD for front headlamp washers (if applicable)"
-]
+    # Determine bumper type
+    is_front = "front bumper" in normalized
+    is_rear = "rear bumper" in normalized
+    is_ambiguous = "bumper" in normalized and not (is_front or is_rear)
 
-def bumper_rule(lines, seen):
-    for line in lines:
-        normalized = normalize(line)
-        words = normalized.split()
+    # Front bumper logic
+    if is_front or is_ambiguous:
+        if "repair" in normalized and "cover" in normalized:
+            if "flex additive" not in seen:
+                suggestions.append("flex additive")
+                seen.add("flex additive")
+        if "replace" in normalized:
+            if "bumper cover" not in seen:
+                suggestions.append("bumper cover")
+                seen.add("bumper cover")
 
-        op_found = any(op in words for op in REPAIR_OPS)
-        part_found = any(re.search(rf"\b{re.escape(part.lower())}\b", normalized) for part in FRONT_BUMPER_PARTS)
+    # Rear bumper logic
+    if is_rear or is_ambiguous:
+        if "repair" in normalized and "cover" in normalized:
+            if "refinish rear bumper" not in seen:
+                suggestions.append("refinish rear bumper")
+                seen.add("refinish rear bumper")
+        if "replace" in normalized:
+            if "rear bumper cover" not in seen:
+                suggestions.append("rear bumper cover")
+                seen.add("rear bumper cover")
 
-        if op_found and part_found:
-            suggestions = suggest_if_missing(lines, MISSED_ITEMS, seen)
-            if suggestions:
-                return ("FRONT BUMPER REPAIR", suggestions)
-
-    return None
-
-def register():
-    return [bumper_rule]
+    return suggestions
