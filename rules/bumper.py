@@ -1,34 +1,27 @@
-def bumper_rule(line, seen):
+from utils import normalize
+
+def bumper_rule(line, seen, context):
     suggestions = []
+    normalized = normalize(line)
 
-    # Normalize line
-    normalized = line.lower()
+    print(f"[bumper_rule] Context: {context} | Line: {line}")
 
-    # Determine bumper type
-    is_front = "front bumper" in normalized
-    is_rear = "rear bumper" in normalized
-    is_ambiguous = "bumper" in normalized and not (is_front or is_rear)
+    verbs = ["repair", "r&i", "replace", "remove", "install", "refinish"]
+    parts = ["bumper", "cover", "fascia", "bumper assy", "facebar", "face bar"]
 
-    # Front bumper logic
-    if is_front or is_ambiguous:
-        if "repair" in normalized and "cover" in normalized:
+    if context == "front":
+        if any(v in normalized for v in verbs) and any(p in normalized for p in parts):
             if "flex additive" not in seen:
                 suggestions.append("flex additive")
                 seen.add("flex additive")
-        if "replace" in normalized:
-            if "bumper cover" not in seen:
-                suggestions.append("bumper cover")
-                seen.add("bumper cover")
 
-    # Rear bumper logic
-    if is_rear or is_ambiguous:
-        if "repair" in normalized and "cover" in normalized:
+    elif context == "rear":
+        if any(v in normalized for v in verbs) and any(p in normalized for p in parts):
             if "refinish rear bumper" not in seen:
                 suggestions.append("refinish rear bumper")
                 seen.add("refinish rear bumper")
-        if "replace" in normalized:
-            if "rear bumper cover" not in seen:
-                suggestions.append("rear bumper cover")
-                seen.add("rear bumper cover")
 
     return suggestions
+
+def register():
+    return [lambda line, seen, context: ("bumper_rule", bumper_rule(line, seen, context))]
