@@ -1,6 +1,6 @@
 # rules/rear_bumper.py
 
-from utils.matching import keyword_in_line, has_any_keywords
+from utils import some_function
 
 CATEGORY_HEADER = "REAR BUMPER"
 
