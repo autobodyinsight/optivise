@@ -1,27 +1,34 @@
-from utils import normalize
+from utils.rules_engine import Rule, Suggestion
+from utils.line_tools import normalize_line
 
-def bumper_rule(line, seen, context):
+def bumper_repair_suggestions(lines):
     suggestions = []
-    normalized = normalize(line)
+    bumper_repair_detected = False
+    current_category = None
 
-    print(f"[bumper_rule] Context: {context} | Line: {line}")
+    bumper_keywords = {"FRONT BUMPER", "FRONT BUMPER & GRILLE", "REAR BUMPER"}
 
-    verbs = ["repair", "r&i", "replace", "remove", "install", "refinish"]
-    parts = ["bumper", "cover", "fascia", "bumper assy", "facebar", "face bar"]
+    for line in lines:
+        norm = normalize_line(line)
 
-    if context == "front":
-        if any(v in normalized for v in verbs) and any(p in normalized for p in parts):
-            if "flex additive" not in seen:
-                suggestions.append("flex additive")
-                seen.add("flex additive")
+        # Detect category headers
+        if norm in bumper_keywords:
+            current_category = norm
+            continue
 
-    elif context == "rear":
-        if any(v in normalized for v in verbs) and any(p in normalized for p in parts):
-            if "refinish rear bumper" not in seen:
-                suggestions.append("refinish rear bumper")
-                seen.add("refinish rear bumper")
+        # Detect bumper repair operation
+        if current_category and "rpr bumper" in norm:
+            bumper_repair_detected = True
 
-    return suggestions
+    if bumper_repair_detected:
+        suggestions.extend([
+            Suggestion("Add flex additive"),
+            Suggestion("Add bumper repair kit"),
+            Suggestion("Add static neutralization")
+        ])
 
-def register():
-    return [lambda line, seen, context: ("bumper_rule", bumper_rule(line, seen, context))]
+    return Rule(
+        name="bumper_repair_suggestions",
+        condition="Detects bumper repair in front or rear",
+        suggestions=suggestions
+    )
