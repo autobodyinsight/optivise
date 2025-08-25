@@ -1,4 +1,4 @@
-from utils import normalize_line
+from utils import normalize
 from rule_engine import Rule, Suggestion
 
 def bumper_repair_suggestions(lines):
@@ -9,7 +9,7 @@ def bumper_repair_suggestions(lines):
     bumper_keywords = {"FRONT BUMPER", "FRONT BUMPER & GRILLE", "REAR BUMPER"}
 
     for line in lines:
-        norm = normalize_line(line)
+        norm = normalize(line)
 
         # Detect category headers
         if norm in bumper_keywords:
