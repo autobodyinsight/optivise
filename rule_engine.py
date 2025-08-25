@@ -3,6 +3,29 @@ import pkgutil
 import rules
 from utils import normalize
 
+class Suggestion:
+    def __init__(self, text: str):
+        self.text = text
+
+    def __str__(self):
+        return self.text
+
+    def __repr__(self):
+        return f"Suggestion({self.text!r})"
+
+
+class Rule:
+    def __init__(self, name: str, condition: str, suggestions: list):
+        self.name = name
+        self.condition = condition
+        self.suggestions = suggestions
+
+    def __str__(self):
+        return f"{self.name}: {self.condition}"
+
+    def __repr__(self):
+        return f"Rule({self.name!r}, {self.condition!r}, {self.suggestions!r})"
+
 def load_rules():
     """Dynamically loads all rule functions from rules modules."""
     rule_funcs = []
