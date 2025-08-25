@@ -1,19 +1,15 @@
-from utils import normalize
-from rule_engine import Rule, Suggestion
+def bumper_repair_suggestions(text: str, tags: set, _: str) -> list[dict]:
+    text_lower = text.lower()
 
-def bumper_repair_suggestions(text, seen_suggestions, current_section):
-    norm = normalize(text)
-    suggestions = []
+    repair_terms = {"rpr", "repair"}
+    bumper_terms = {"bumper", "bumper cover", "fascia", "facebar", "face bar"}
 
-    # Only run if we're inside a bumper section
-    if current_section in {"front", "rear"} and "rpr bumper" in norm:
-        suggestions.extend([
-            "Add flex additive",
-            "Add bumper repair kit",
-            "Add static neutralization"
-        ])
-
-    return ("bumper_repair_suggestions", suggestions) if suggestions else None
-
-def register():
-    return [bumper_repair_suggestions]
+    if any(r in text_lower for r in repair_terms) and any(b in text_lower for b in bumper_terms):
+        return [{
+            "category": "bumper",
+            "summary": "Check bumper repair logic",
+            "detail": f"Line mentions repair and bumper: '{text}'",
+            "tags": ["bumper", "repair"]
+        }]
+    
+    return []
