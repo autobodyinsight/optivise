@@ -1,4 +1,5 @@
-from utils.line_tools import normalize_line
+from utils import normalize_line
+from rule_engine import Rule, Suggestion
 
 def bumper_repair_suggestions(lines):
     suggestions = []
