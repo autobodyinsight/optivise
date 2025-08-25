@@ -81,6 +81,6 @@ if __name__ == "__main__":
     lines = ["Repair front bumper cover"]
     seen = set()
 
-    from rules.bumper import bumper_rule
+    from rules.bumper import bumper_repair_suggestions
 
-    print("Front bumper result:", bumper_rule(lines, seen))
+    print("Front bumper result:", bumper_repair_suggestions(lines[0], seen, None))
