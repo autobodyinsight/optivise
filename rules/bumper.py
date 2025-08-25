@@ -1,20 +1,36 @@
-def bumper_repair_suggestions(text: str, tags: set, section: str) -> tuple:
-    text_lower = text.lower()
+import re
+from utils import normalize, suggest_if_missing
 
-    repair_terms = {"rpr", "repair"}
-    bumper_terms = {"bumper", "bumper cover", "fascia", "facebar", "face bar"}
+REPAIR_OPS = ["rpr", "repair", "rep"]
+BUMPER_PARTS = [
+    "bumper", "bumper cover", "fascia", "facebar",
+    "bumper assy", "bumper assembly"
+]
 
-    if any(r in text_lower for r in repair_terms) and any(b in text_lower for b in bumper_terms):
-        return (
-            "bumper_repair",
-            [{
-                "category": "bumper",
-                "summary": "Check bumper repair logic",
-                "detail": f"Line mentions repair and bumper: '{text}'",
-                "tags": ["bumper", "repair"]
-            }]
-        )
+MISSED_ITEMS = [
+    "bumper repair kit",
+    "flex additive",
+    "mask for texture (if applicable)",
+    "mask for two tone (if applicable)",
+    "ADD for parking sensors (if applicable)",
+    "ADD for auto park (if applicable)",
+    "ADD for headlamp washers (if applicable)"
+]
+
+def bumper_rule(lines, seen):
+    for line in lines:
+        normalized = normalize(line)
+        words = normalized.split()
+
+        op_found = any(op in words for op in REPAIR_OPS)
+        part_found = any(re.search(rf"\b{re.escape(part.lower())}\b", normalized) for part in BUMPER_PARTS)
+
+        if op_found and part_found:
+            suggestions = suggest_if_missing(lines, MISSED_ITEMS, seen)
+            if suggestions:
+                return ("BUMPER REPAIR", suggestions)
+
     return None
 
 def register():
-    return [bumper_repair_suggestions]
+    return [bumper_rule]
