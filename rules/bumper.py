@@ -13,3 +13,6 @@ def bumper_repair_suggestions(text: str, tags: set, _: str) -> list[dict]:
         }]
     
     return []
+
+def register():
+    return [bumper_repair_suggestions]
