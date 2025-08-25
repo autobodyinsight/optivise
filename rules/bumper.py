@@ -6,7 +6,9 @@ def bumper_repair_suggestions(lines):
     bumper_repair_detected = False
     current_category = None
 
-    bumper_keywords = {"FRONT BUMPER", "FRONT BUMPER & GRILLE", "REAR BUMPER"}
+    bumper_keywords = {normalize(k) for k in [
+    "FRONT BUMPER", "FRONT BUMPER & GRILLE", "REAR BUMPER"
+]}
 
     for line in lines:
         norm = normalize(line)
