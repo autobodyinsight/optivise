@@ -1,36 +1,19 @@
 from utils import normalize
 from rule_engine import Rule, Suggestion
 
-def bumper_repair_suggestions(lines):
+def bumper_repair_suggestions(text, seen_suggestions, current_section):
+    norm = normalize(text)
     suggestions = []
-    bumper_repair_detected = False
-    current_category = None
 
-    bumper_keywords = {normalize(k) for k in [
-    "FRONT BUMPER", "FRONT BUMPER & GRILLE", "REAR BUMPER"
-]}
-
-    for line in lines:
-        norm = normalize(line)
-
-        # Detect category headers
-        if norm in bumper_keywords:
-            current_category = norm
-            continue
-
-        # Detect bumper repair operation
-        if current_category and "rpr bumper" in norm:
-            bumper_repair_detected = True
-
-    if bumper_repair_detected:
+    # Only run if we're inside a bumper section
+    if current_section in {"front", "rear"} and "rpr bumper" in norm:
         suggestions.extend([
-            Suggestion("Add flex additive"),
-            Suggestion("Add bumper repair kit"),
-            Suggestion("Add static neutralization")
+            "Add flex additive",
+            "Add bumper repair kit",
+            "Add static neutralization"
         ])
 
-    return Rule(
-        name="bumper_repair_suggestions",
-        condition="Detects bumper repair in front or rear",
-        suggestions=suggestions
-    )
+    return ("bumper_repair_suggestions", suggestions) if suggestions else None
+
+def register():
+    return [bumper_repair_suggestions]
