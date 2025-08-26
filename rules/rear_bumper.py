@@ -9,29 +9,39 @@ REAR_PARTS = [
 
 WARNING = ["WARNING! VERIFY REPAIR IS NOT WITHIN RADAR LINE OF SITE"]
 
+# Precompile adjacent repair + bumper patterns
+REPAIR_BUMPER_PATTERNS = [
+    rf"\b{op}\s+{part}\b"
+    for op in REPAIR_OPS
+    for part in REAR_PARTS
+]
+
 def rear_bumper_rule(lines, seen):
     in_rear_section = False
 
     for line in lines:
-        # Detect exact all-caps header
-        if line.strip() == "REAR BUMPER":
+        stripped = line.strip()
+
+        # Detect section start: allow numbered or mixed-case headers
+        if "REAR" in stripped.upper() and "BUMPER" in stripped.upper():
             in_rear_section = True
             continue
 
-        # Exit section if another all-caps header appears
-        if in_rear_section and line.isupper() and line.strip() != "REAR BUMPER":
-            break
+        # Exit section only if a new unrelated all-caps header appears
+        if in_rear_section and stripped.isupper() and not ("REAR" in stripped or "BUMPER" in stripped):
+            in_rear_section = False
+            continue
 
         if in_rear_section:
             normalized = normalize(line)
-            words = normalized.split()
 
-            op_found = any(op in words for op in REPAIR_OPS)
-            part_found = any(re.search(rf"\b{re.escape(part.lower())}\b", normalized) for part in REAR_PARTS)
+            # Check for adjacent repair + bumper term
+            adjacent_match = any(re.search(pattern, normalized) for pattern in REPAIR_BUMPER_PATTERNS)
 
-            if op_found and part_found:
+            if adjacent_match:
+                print("REAR BUMPER RULE FIRED ON:", line)
                 if WARNING[0] not in seen:
-                    return ("REAR BUMPER RADAR CHECK", WARNING)
+                    return ("REAR BUMPER REPAIR DETECTED", WARNING)
 
     return None
 
