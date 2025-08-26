@@ -1,9 +1,13 @@
 import re
-from utils import normalize, suggest_if_missing  # Use shared normalization
+from utils import normalize, suggest_if_missing
 
-OPS = ["rpl", "replace", "remove / replace", "rem / repl"]
-PARTS = ["bumper", "bumper cover", "fascia", "bumper cover assy", "bumper cover assembly"]
-HEADER = "FRONT BUMPER"
+REPLACE_PHRASES = [
+    "repl bumper", "replace bumper",
+    "repl bumper cover", "replace bumper cover",
+    "repl fascia", "replace fascia",
+    "repl bumper cover assy", "replace bumper cover assy",
+    "repl bumper cover assembly", "replace bumper cover assembly"
+]
 
 SUGGESTIONS = [
     "flex additive",
@@ -17,45 +21,36 @@ SUGGESTIONS = [
     "IF LKQ ADD DETRIM TO ALL BUMPER COMPONENTS"
 ]
 
-REPLACE_PATTERNS = [
-    rf"\b{op}\s+{part}\b"
-    for op in OPS
-    for part in PARTS
-]
-
 def front_bumper_replace_rule(lines, seen):
-    in_front_section = False
-    found_match = False
+    print("🚀 front_bumper_replace_rule fired")
+    bumper_context_detected = False
+    phrase_detected = False
     section_lines = []
 
     for line in lines:
         norm = normalize(line)
+        section_lines.append(line)
+        print(f"[FRONT BUMPER REPLACE RULE] Scanning line: {norm}")
 
-        # Detect section entry
-        if HEADER in line:
-            in_front_section = True
-            print(f"[FRONT BUMPER REPLACE RULE] Entered section: {line.strip()}")
-            continue
+        # ✅ Looser context detection: any line mentioning "front bumper"
+        if "front bumper" in norm:
+            bumper_context_detected = True
+            print("[FRONT BUMPER REPLACE RULE] ✅ Context match: front bumper")
 
-        # Exit section on new all-caps header
-        if re.match(r"^[A-Z ]{5,}$", line.strip()) and HEADER not in line:
-            in_front_section = False
+        # ✅ Phrase-level detection
+        for phrase in REPLACE_PHRASES:
+            if phrase in norm:
+                phrase_detected = True
+                print(f"[FRONT BUMPER REPLACE RULE] ✅ Phrase detected: {phrase}")
 
-        if in_front_section:
-            section_lines.append(line)
-            print(f"[FRONT BUMPER REPLACE RULE] Scanning line: {norm}")
-
-            for pattern in REPLACE_PATTERNS:
-                if re.search(pattern, norm):
-                    print(f"[FRONT BUMPER REPLACE RULE] ✅ Match found: {line}")
-                    found_match = True
-
-    if found_match:
+    if bumper_context_detected and phrase_detected:
         missing = suggest_if_missing(section_lines, SUGGESTIONS, seen)
         if missing:
+            print(f"[FRONT BUMPER REPLACE RULE] 🎯 Suggestions returned: {missing}")
             return ("FRONT BUMPER REPLACEMENT CHECK", missing)
 
     return None
 
 def register():
+    print("✅ front_bumper_replace_rule registered")
     return [front_bumper_replace_rule]
