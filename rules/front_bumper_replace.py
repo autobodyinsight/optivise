@@ -17,9 +17,8 @@ SUGGESTIONS = [
     "IF LKQ ADD DETRIM TO ALL BUMPER COMPONENTS"
 ]
 
-# Precompile adjacent operation + part patterns
 REPLACE_PATTERNS = [
-    rf"\b{op}\b.*\b{part}\b|\b{part}\b.*\b{op}\b"
+    rf"\b{op}\s+{part}\b"
     for op in OPS
     for part in PARTS
 ]
