@@ -1,7 +1,3 @@
-import re
-import pdfplumber
-from utils import normalize
-
 def parse_pdf(file_path: str) -> dict:
     raw_lines = []
 
@@ -15,6 +11,11 @@ def parse_pdf(file_path: str) -> dict:
     for line in raw_lines:
         print(line)
 
+    # 🔍 Insert this block right here to detect headers
+    for line in raw_lines:
+        if line.isupper() and len(line.strip().split()) <= 3:
+            print("🔹 Detected header:", line)
+
     operations = ["repair", "rpr"]
     parts = ["bumper"]
 
@@ -24,6 +25,8 @@ def parse_pdf(file_path: str) -> dict:
         normalized = normalize(line)
         if any(op in normalized for op in operations) and any(part in normalized for part in parts):
             parsed_parts.append(line)
+
+    headers = [line for line in raw_lines if line.isupper() and len(line.strip().split()) <= 3]
 
     return {
         "raw_lines": raw_lines,
