@@ -1,3 +1,7 @@
+import re
+import pdfplumber
+from utils import normalize
+
 def parse_pdf(file_path: str) -> dict:
     raw_lines = []
 
@@ -29,7 +33,8 @@ def parse_pdf(file_path: str) -> dict:
     headers = [line for line in raw_lines if line.isupper() and len(line.strip().split()) <= 3]
 
     return {
-        "raw_lines": raw_lines,
-        "seen": set(normalize(line) for line in raw_lines),
-        "parts": parsed_parts
-    }
+    "raw_lines": raw_lines,
+    "seen": set(normalize(line) for line in raw_lines),
+    "parts": parsed_parts,
+    "headers": headers  # ✅ Add this line
+}
