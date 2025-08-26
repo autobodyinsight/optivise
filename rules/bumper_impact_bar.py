@@ -1,9 +1,9 @@
 import re
-from utils import normalize, sectionize
+from utils import normalize
 
 OPS = ["repl", "replace", "remove / replace", "rem / repl"]
 PARTS = ["impact bar", "rebar", "reinforcement beam", "reinforcement", "bumper beam"]
-HEADERS = ["FRONT BUMPER", "REAR BUMPER"]
+HEADERS = ["front bumper", "rear bumper"]
 
 SUGGESTIONS = [
     "VERIFY if refinish is required",
@@ -11,20 +11,25 @@ SUGGESTIONS = [
 ]
 
 def impact_bar_rule(lines, seen):
-    sections = sectionize(lines)
-    for header, content in sections.items():
-        if header not in HEADERS:
+    in_bumper_section = False
+    found_match = False
+    paint_present = False
+
+    for line in lines:
+        norm = normalize(line)
+
+        # Detect section entry
+        if norm in HEADERS:
+            in_bumper_section = True
             continue
 
-        print(f"[IMPACT BAR RULE] Scanning section: {header}")
-        found_match = False
-        paint_present = False
+        # Exit section if another header appears (optional: expand if needed)
+        if re.match(r"^[A-Z ]{5,}$", line.strip()) and norm not in HEADERS:
+            in_bumper_section = False
 
-        for line in content:
-            norm = normalize(line)
-
+        if in_bumper_section:
             # Detect paint labor
-            if re.search(r"\bpaint\b", norm) and re.search(r"\d+(\.\d+)?", norm):
+            if "paint" in norm and re.search(r"\d+(\.\d+)?", norm):
                 paint_present = True
 
             # Detect operation + part adjacency
@@ -35,10 +40,10 @@ def impact_bar_rule(lines, seen):
                         print(f"[IMPACT BAR RULE] Match found: {line}")
                         found_match = True
 
-        if found_match and not paint_present:
-            suggestions = [s for s in SUGGESTIONS if s not in seen]
-            if suggestions:
-                return (f"{header} IMPACT BAR REFINISH CHECK", suggestions)
+    if found_match and not paint_present:
+        suggestions = [s for s in SUGGESTIONS if s not in seen]
+        if suggestions:
+            return ("BUMPER IMPACT BAR REFINISH CHECK", suggestions)
 
     return None
 
