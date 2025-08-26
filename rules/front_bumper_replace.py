@@ -1,5 +1,5 @@
 import re
-from utils import normalize, suggest_if_missing
+from utils import normalize, suggest_if_missing  # Use shared normalization
 
 OPS = ["rpl", "replace", "remove / replace", "rem / repl"]
 PARTS = ["bumper", "bumper cover", "fascia", "bumper cover assy", "bumper cover assembly"]
@@ -15,6 +15,13 @@ SUGGESTIONS = [
     "ADD for auto park",
     "ADD if required - transfer parking sensor brackets",
     "IF LKQ ADD DETRIM TO ALL BUMPER COMPONENTS"
+]
+
+# Precompile adjacent operation + part patterns
+REPLACE_PATTERNS = [
+    rf"\b{op}\b.*\b{part}\b|\b{part}\b.*\b{op}\b"
+    for op in OPS
+    for part in PARTS
 ]
 
 def front_bumper_replace_rule(lines, seen):
@@ -37,14 +44,12 @@ def front_bumper_replace_rule(lines, seen):
 
         if in_front_section:
             section_lines.append(line)
+            print(f"[FRONT BUMPER REPLACE RULE] Scanning line: {norm}")
 
-            # Detect operation + part adjacency
-            for op in OPS:
-                for part in PARTS:
-                    pattern = rf"\b{op}\b.*\b{part}\b|\b{part}\b.*\b{op}\b"
-                    if re.search(pattern, norm):
-                        print(f"[FRONT BUMPER REPLACE RULE] Match found: {line}")
-                        found_match = True
+            for pattern in REPLACE_PATTERNS:
+                if re.search(pattern, norm):
+                    print(f"[FRONT BUMPER REPLACE RULE] ✅ Match found: {line}")
+                    found_match = True
 
     if found_match:
         missing = suggest_if_missing(section_lines, SUGGESTIONS, seen)
