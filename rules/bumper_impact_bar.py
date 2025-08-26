@@ -3,7 +3,7 @@ from utils import normalize
 
 OPS = ["repl", "replace", "remove / replace", "rem / repl"]
 PARTS = ["impact bar", "rebar", "reinforcement beam", "reinforcement", "bumper beam"]
-HEADERS = ["front bumper", "rear bumper"]
+HEADERS = ["FRONT BUMPER", "REAR BUMPER"]
 
 SUGGESTIONS = [
     "VERIFY if refinish is required",
@@ -18,18 +18,19 @@ def impact_bar_rule(lines, seen):
     for line in lines:
         norm = normalize(line)
 
-        # Detect section entry
-        if norm in HEADERS:
+        # Detect section entry: line contains a known bumper header
+        if any(h in line for h in HEADERS):
             in_bumper_section = True
+            print(f"[IMPACT BAR RULE] Entered section: {line.strip()}")
             continue
 
-        # Exit section if another header appears (optional: expand if needed)
-        if re.match(r"^[A-Z ]{5,}$", line.strip()) and norm not in HEADERS:
+        # Exit section: any new all-caps header not in HEADERS
+        if re.match(r"^[A-Z ]{5,}$", line.strip()) and not any(h in line for h in HEADERS):
             in_bumper_section = False
 
         if in_bumper_section:
             # Detect paint labor
-            if "paint" in norm and re.search(r"\d+(\.\d+)?", norm):
+            if ("paint" in norm or "refinish" in norm) and re.search(r"\d+(\.\d+)?", norm):
                 paint_present = True
 
             # Detect operation + part adjacency
