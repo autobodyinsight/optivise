@@ -1,7 +1,6 @@
 import re
 from utils import normalize
 
-REAR_BUMPER_HEADER = "REAR BUMPER"
 REPAIR_OPS = ["rpr", "repair", "rep"]
 REAR_PARTS = [
     "bumper", "bumper cover", "fascia",
@@ -14,19 +13,19 @@ def rear_bumper_rule(lines, seen):
     in_rear_section = False
 
     for line in lines:
-        normalized = normalize(line)
-
-        # Detect section header
-        if normalized == REAR_BUMPER_HEADER.lower():
+        # Detect exact all-caps header
+        if line.strip() == "REAR BUMPER":
             in_rear_section = True
             continue
 
-        # Exit section if a new all-caps header appears
-        if in_rear_section and line.isupper() and line.strip() != REAR_BUMPER_HEADER:
+        # Exit section if another all-caps header appears
+        if in_rear_section and line.isupper() and line.strip() != "REAR BUMPER":
             break
 
         if in_rear_section:
+            normalized = normalize(line)
             words = normalized.split()
+
             op_found = any(op in words for op in REPAIR_OPS)
             part_found = any(re.search(rf"\b{re.escape(part.lower())}\b", normalized) for part in REAR_PARTS)
 
