@@ -1,5 +1,5 @@
-from utils.matching import contains_any, normalize_line
-from utils.suggestions import suggest_if_missing
+import re
+from utils import normalize_line, contains_any, suggest_if_missing
 
 def rule_grille_adas(line: str, existing_suggestions: list[str]) -> list[str]:
     """
