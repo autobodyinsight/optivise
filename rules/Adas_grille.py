@@ -7,8 +7,11 @@ def rule_grille_adas(line: str, existing_suggestions: list[str]) -> list[str]:
     """
     norm = normalize(line)
 
-    if any(kw in norm for kw in ["r&i", "remove", "install", "replace", "rpl", "repl"]) and \
-       any(part in norm for part in ["grille", "grill"]):
+    if any(kw in norm for kw in [
+        "r&i", "remove / install", "replace", "repl", "remove/replace"
+    ]) and any(part in norm for part in [
+        "grille", "grill", "upper grille", "upr grille"
+    ]):
         return suggest_if_missing(
             existing_suggestions,
             [
