@@ -1,16 +1,14 @@
 import re
-from utils import normalize_line, contains_any, suggest_if_missing
+from utils import normalize, suggest_if_missing
 
 def rule_grille_adas(line: str, existing_suggestions: list[str]) -> list[str]:
     """
     If the line mentions R&I or Replace + grille/grill, suggest ADAS calibrations.
     """
-    norm = normalize_line(line)
+    norm = normalize(line)
 
-    action_keywords = ["r&i", "remove", "install", "replace", "rpl", "repl"]
-    part_keywords = ["grille", "grill"]
-
-    if contains_any(norm, action_keywords) and contains_any(norm, part_keywords):
+    if any(kw in norm for kw in ["r&i", "remove", "install", "replace", "rpl", "repl"]) and \
+       any(part in norm for part in ["grille", "grill"]):
         return suggest_if_missing(
             existing_suggestions,
             [
