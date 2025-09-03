@@ -1,0 +1,10 @@
+# render.yaml
+services:
+  - type: web
+    name: optivise-backend
+    env: python
+    repo: https://github.com/autobodyinsight/optivise
+    branch: main
+    buildCommand: ""
+    startCommand: "python app.py"
+    autoDeploy: true
