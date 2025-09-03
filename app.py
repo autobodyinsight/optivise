@@ -9,7 +9,7 @@ CORS(app)
 @app.route("/fire-rule", methods=["POST"])
 def fire_rule():
     data = request.get_json()
-    result = rule_engine.evaluate(data)  # Replace with your actual method
+    result = evaluate(data)  # Replace with your actual method
     return jsonify(result)
 
 if __name__ == "__main__":
