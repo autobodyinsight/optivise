@@ -10,6 +10,7 @@ attrs==25.3.0
 babel==2.17.0
 beautifulsoup4==4.13.4
 bleach==6.2.0
+blinker==1.9.0
 boltons @ file:///work/perseverance-python-buildout/croot/boltons_1698851177130/work
 Brotli @ file:///croot/brotli-split_1714483155106/work
 certifi==2025.7.9
@@ -33,6 +34,8 @@ executing==2.2.0
 fastapi==0.116.1
 fastjsonschema==2.21.1
 filelock==3.13.1
+Flask==3.1.2
+flask-cors==6.0.1
 fonttools==4.58.5
 fqdn==1.5.1
 frozendict @ file:///croot/frozendict_1713194832637/work
@@ -47,6 +50,7 @@ ipykernel==6.29.5
 ipython==9.4.0
 ipython_pygments_lexers==1.1.1
 isoduration==20.11.0
+itsdangerous==2.2.0
 jedi==0.19.2
 Jinja2==3.1.6
 joblib==1.5.1
@@ -151,5 +155,6 @@ wcwidth==0.2.13
 webcolors==24.11.1
 webencodings==0.5.1
 websocket-client==1.8.0
+Werkzeug==3.1.3
 wheel==0.43.0
 zstandard @ file:///croot/zstandard_1714677652653/work
