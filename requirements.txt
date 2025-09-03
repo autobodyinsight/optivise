@@ -32,6 +32,7 @@ pydantic_core==2.33.2
 pyparsing==3.2.3
 pypdfium2==4.30.0
 python-dateutil==2.9.0.post0
+python-multipart==0.0.6
 pytz==2025.2
 requests==2.32.5
 scikit-learn==1.7.1
