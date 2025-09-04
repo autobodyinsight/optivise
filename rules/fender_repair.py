@@ -31,7 +31,7 @@ def fender_repair(lines: list[str], seen: set[str]) -> tuple[str, list[str]] | N
                 break  # Fire once per match
 
     if suggestions:
-        return ("FENDER REPAIR ACCESSORY CHECK", suggestions)
+        return ("FENDER REPAIR SUGGESTIONS", suggestions)
 
     return None
 
