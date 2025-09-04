@@ -3,8 +3,6 @@ from utils import normalize, suggest_if_missing
 
 OPS = ["rpr", "repair", "rep"]
 PARTS = ["fender", "fndr"]
-HEADER = "FENDER"
-
 ACCESSORY_ITEMS = [
     "r&i fender liner",
     "r&i wheel opng mldg",
@@ -17,32 +15,23 @@ ACCESSORY_ITEMS = [
 ]
 
 def fender_repair(lines: list[str], seen: set[str]) -> tuple[str, list[str]] | None:
-    in_fender_section = False
-    found_repair = False
+    norm_lines = [normalize(line) for line in lines]
+    suggestions = []
 
-    for line in lines:
-        norm = normalize(line)
+    for norm in norm_lines:
+        words = norm.split()
 
-        # Detect entry into FENDER section
-        if HEADER in line:
-            in_fender_section = True
-            print(f"[FENDER ACCESSORY RULE] Entered section: {line.strip()}")
-            continue
+        # Detect repair operation + fender part
+        if any(op in words for op in OPS) and any(part in words for part in PARTS):
+            # Check if any accessory item is already mentioned in the same line
+            if not any(accessory in norm for accessory in ACCESSORY_ITEMS):
+                print(f"[FENDER REPAIR] Match found without accessories: {norm}")
+                # Suggest missing accessories not already present in the estimate
+                suggestions = suggest_if_missing(lines, ACCESSORY_ITEMS, seen)
+                break  # Fire once per match
 
-        # Exit section if new all-caps header appears
-        if re.match(r"^[A-Z ]{5,}$", line.strip()) and HEADER not in line:
-            in_fender_section = False
-
-        if in_fender_section:
-            # Detect repair operation + fender part
-            if any(op in norm for op in OPS) and any(part in norm for part in PARTS):
-                found_repair = True
-                print(f"[FENDER ACCESSORY RULE] Repair match: {line.strip()}")
-
-    if found_repair:
-        suggestions = suggest_if_missing(lines, ACCESSORY_ITEMS, seen)
-        if suggestions:
-            return ("FENDER REPAIR ACCESSORY CHECK", suggestions)
+    if suggestions:
+        return ("FENDER REPAIR ACCESSORY CHECK", suggestions)
 
     return None
 
