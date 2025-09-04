@@ -1,39 +1,39 @@
 import re
-from utils import normalize, suggest_if_missing
 
-OPS = ["rpr", "repair", "rep"]
-PARTS = ["fender", "fndr"]
-ACCESSORY_ITEMS = [
-    "r&i fender liner",
-    "r&i wheel opng mldg",
-    "r&i mud guard",
-    "r&i corner molding",
-    "r&i rocker molding",
-    "r&i rkr mldg",
-    "r&i rocker mldg",
-    "r&i rkr molding"
-]
+def normalize(text):
+    return re.sub(r'[^a-z0-9\s]', '', text.lower())
 
-def fender_repair(lines: list[str], seen: set[str]) -> tuple[str, list[str]] | None:
-    norm_lines = [normalize(line) for line in lines]
+def contains_all_keywords(line, keywords):
+    norm_line = normalize(line)
+    return all(re.search(rf'\b{kw}\b', norm_line) for kw in keywords)
+
+def rule_fender_accessory_check(estimate_lines):
+    trigger_keywords = [["rpr", "repair", "rep"], ["fender", "fndr"]]
+    required_accessories = [
+        ["r&i", "fender", "liner"],
+        ["r&i", "wheel", "opng", "mldg"],
+        ["r&i", "mud", "guard"],
+        ["r&i", "corner", "molding"],
+        ["r&i", "rocker", "molding"]
+    ]
+
+    normalized_lines = [normalize(line) for line in estimate_lines]
+
+    # 🔍 Check if any line contains both trigger keyword groups
+    triggered = any(
+        contains_all_keywords(line, trigger_keywords[0]) and
+        contains_all_keywords(line, trigger_keywords[1])
+        for line in normalized_lines
+    )
+
+    if not triggered:
+        return []
+
+    # 🧠 Suggest missing accessories
     suggestions = []
+    for accessory in required_accessories:
+        found = any(contains_all_keywords(line, accessory) for line in normalized_lines)
+        if not found:
+            suggestions.append("rá " + " ".join(accessory))
 
-    for norm in norm_lines:
-        words = norm.split()
-
-        # Detect repair operation + fender part
-        if any(op in words for op in OPS) and any(part in words for part in PARTS):
-            # Check if any accessory item is already mentioned in the same line
-            if not any(accessory in norm for accessory in ACCESSORY_ITEMS):
-                print(f"[FENDER REPAIR] Match found without accessories: {norm}")
-                # Suggest missing accessories not already present in the estimate
-                suggestions = suggest_if_missing(lines, ACCESSORY_ITEMS, seen)
-                break  # Fire once per match
-
-    if suggestions:
-        return ("FENDER REPAIR SUGGESTIONS", suggestions)
-
-    return None
-
-def register():
-    return [fender_repair]
+    return suggestions
