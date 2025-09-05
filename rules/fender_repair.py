@@ -1,27 +1,29 @@
 import re
 from utils import normalize, suggest_if_missing
 
-TRIGGER_PATTERNS = [
-    r"rpr\s+lt\s+fender",
-    r"rpr\s+rt\s+fender",
-    r"r\s+fender\s+panel\s+repair",
-    r"l\s+fender\s+panel\s+repair"
-]
+REPAIR_KEYWORDS = ["rpr", "repair", "rep"]
+FENDER_KEYWORDS = ["fender", "fndr"]
 
 ACCESSORY_ALIASES = {
-    "wheel opening molding": ["wheel opng mldg", "wheel opening molding"],
-    "rocker molding": ["rocker molding", "rkr molding", "rkr mldg", "rocker mldg"],
-    "corner molding": ["corner molding"],
     "fender liner": ["fender liner"],
-    "mud guard": ["mud guard"]
+    "wheel opening molding": ["wheel opng mldg", "wheel opening molding"],
+    "mud guard": ["mud guard"],
+    "corner molding": ["corner molding"],
+    "rocker molding": ["rocker molding", "rkr molding", "rkr mldg", "rocker mldg"]
 }
 
 def normalize_line(text):
     return re.sub(r'[^a-z0-9\s]', '', text.lower())
 
-def matches_trigger(line):
+def contains_keywords(line, keywords):
     norm = normalize_line(line)
-    return any(re.search(pattern, norm) for pattern in TRIGGER_PATTERNS)
+    return all(kw in norm for kw in keywords)
+
+def matches_trigger(line):
+    return (
+        contains_keywords(line, REPAIR_KEYWORDS[:1]) and  # "rpr"
+        any(kw in normalize_line(line) for kw in FENDER_KEYWORDS)
+    )
 
 def accessory_present(line, aliases):
     norm = normalize_line(line)
