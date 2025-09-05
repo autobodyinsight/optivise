@@ -7,23 +7,19 @@ FENDER_PARTS = ["fender", "fender panel", "fndr"]
 # Canonical suggestions
 ACCESSORY_ITEMS = [
     "r&i fender liner",
-    "r&i wheel opening molding",
+    "r&i wheel opng mldg",
     "r&i mud guard",
-    "r&i LT corner molding",
-    "r&i RT corner molding",
-    "r&i LT rocker molding",
-    "r&i RT rocker molding"
+    "r&i corner molding",
+    "r&i rocker molding",
 ]
 
 # Aliases for matching
 ACCESSORY_ALIASES = {
     "r&i fender liner": ["r&i fender liner"],
-    "r&i wheel opening molding": ["r&i wheel opng mldg", "r&i wheel opening molding"],
+    "r&i wheel opng mldg": [ "r&i wheel opening molding"],
     "r&i mud guard": ["r&i mud guard"],
-    "r&i LT corner molding": ["r&i lt corner molding", "lt corner molding"],
-    "r&i RT corner molding": ["r&i rt corner molding", "rt corner molding"],
-    "r&i LT rocker molding": ["r&i lt rocker molding", "lt rocker molding", "r&i lt rkr molding", "lt rkr molding"],
-    "r&i RT rocker molding": ["r&i rt rocker molding", "rt rocker molding", "r&i rt rkr molding", "rt rkr molding"]
+    "r&i corner molding": ["r&i corner molding", "corner mldg"],
+    "r&i rocker molding": ["r&i rocker mldg", "r&i rkr molding"],
 }
 
 def fender_repair(lines, seen):
