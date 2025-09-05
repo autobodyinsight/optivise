@@ -6,7 +6,7 @@ def rule_grille_adas(lines: list[str], seen: set[str]) -> tuple[str, list[str]] 
     If any line mentions R&I or Replace + grille/grill, suggest ADAS calibrations.
     """
     action_keywords = ["r&i", "remove / install", "replace", "repl", "remove/replace"]
-    grille_keywords = ["grille", "grill", "upper", "lower", "center"]
+    grille_keywords = ["grille", "grill"]
 
     for line in lines:
         norm = normalize(line)

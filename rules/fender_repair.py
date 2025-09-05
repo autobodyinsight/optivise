@@ -7,7 +7,7 @@ FENDER_PARTS = ["fender", "fender panel", "fndr"]
 # Canonical suggestions
 ACCESSORY_ITEMS = [
     "r&i fender liner",
-    "r&i wheel opng mldg",
+    "r&i wheel opening molding",  # unified suggestion
     "r&i mud guard",
     "r&i corner molding",
     "r&i rocker molding"
@@ -16,10 +16,10 @@ ACCESSORY_ITEMS = [
 # Aliases for matching
 ACCESSORY_ALIASES = {
     "r&i fender liner": ["fender liner"],
-    "r&i wheel opng mldg": ["wheel opng mldg"],
+    "r&i wheel opening molding": ["wheel opng mldg", "flare", "wheel opening molding"],
     "r&i mud guard": ["mud guard"],
-    "r&i corner molding": ["corner molding"],
-    "r&i rocker molding": ["rocker molding"]
+    "r&i corner molding": ["corner molding", "corner mldg"],
+    "r&i rocker molding": ["rocker molding", "rkr molding", "rocker mldg", "rkr mldg"]
 }
 
 def fender_repair(lines, seen):
@@ -43,11 +43,11 @@ def fender_repair(lines, seen):
     # Filter out accessories already present
     missing = []
     for label, aliases in ACCESSORY_ALIASES.items():
-        found = any(
-            all(re.search(rf"\b{normalize(alias)}\b", normalize(line)) for alias in aliases)
+        present = any(
+            any(re.search(rf"\b{normalize(alias)}\b", normalize(line)) for alias in aliases)
             for line in lines
         )
-        if not found and label not in seen:
+        if not present and label not in seen:
             missing.append(label)
 
     if missing:
