@@ -1,39 +1,48 @@
 import re
+from utils import normalize, suggest_if_missing
 
-def normalize(text):
+TRIGGER_PATTERNS = [
+    r"rpr\s+lt\s+fender",
+    r"rpr\s+rt\s+fender",
+    r"r\s+fender\s+panel\s+repair",
+    r"l\s+fender\s+panel\s+repair"
+]
+
+ACCESSORY_ALIASES = {
+    "wheel opening molding": ["wheel opng mldg", "wheel opening molding"],
+    "rocker molding": ["rocker molding", "rkr molding", "rkr mldg", "rocker mldg"],
+    "corner molding": ["corner molding"],
+    "fender liner": ["fender liner"],
+    "mud guard": ["mud guard"]
+}
+
+def normalize_line(text):
     return re.sub(r'[^a-z0-9\s]', '', text.lower())
 
-def contains_all_keywords(line, keywords):
-    norm_line = normalize(line)
-    return all(re.search(rf'\b{kw}\b', norm_line) for kw in keywords)
+def matches_trigger(line):
+    norm = normalize_line(line)
+    return any(re.search(pattern, norm) for pattern in TRIGGER_PATTERNS)
 
-def rule_fender_accessory_check(estimate_lines):
-    trigger_keywords = [["rpr", "repair", "rep"], ["fender", "fndr"]]
-    required_accessories = [
-        ["r&i", "fender", "liner"],
-        ["r&i", "wheel", "opng", "mldg"],
-        ["r&i", "mud", "guard"],
-        ["r&i", "corner", "molding"],
-        ["r&i", "rocker", "molding"]
-    ]
+def accessory_present(line, aliases):
+    norm = normalize_line(line)
+    return any(alias in norm for alias in aliases)
 
-    normalized_lines = [normalize(line) for line in estimate_lines]
-
-    # 🔍 Check if any line contains both trigger keyword groups
-    triggered = any(
-        contains_all_keywords(line, trigger_keywords[0]) and
-        contains_all_keywords(line, trigger_keywords[1])
-        for line in normalized_lines
-    )
-
+def fender_repair(lines: list[str], seen: set[str]) -> tuple[str, list[str]] | None:
+    triggered = any(matches_trigger(line) for line in lines)
     if not triggered:
-        return []
+        return None
 
-    # 🧠 Suggest missing accessories
     suggestions = []
-    for accessory in required_accessories:
-        found = any(contains_all_keywords(line, accessory) for line in normalized_lines)
-        if not found:
-            suggestions.append("rá " + " ".join(accessory))
+    for label, aliases in ACCESSORY_ALIASES.items():
+        found = any(accessory_present(line, aliases) for line in lines)
+        if not found and f"r&i {label}" not in seen:
+            suggestions.append(f"r&i {label}")
 
-    return suggestions
+    if suggestions:
+        print("[FENDER REPAIR] ✅ Triggered. Missing accessories:", suggestions)
+        return ("FENDER REPAIR ACCESSORY CHECK", suggestions)
+
+    return None
+
+def register():
+    return [fender_repair]
