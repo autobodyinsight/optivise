@@ -2,13 +2,15 @@ import re
 from utils import normalize, suggest_if_missing
 
 REPAIR_OPS = ["rpr", "repair", "rep"]
-FENDER_PARTS = ["fender", "fndr"]
+FENDER_PARTS = ["fender", "fender panel", "fndr"]
 ACCESSORY_ITEMS = [
     "r&i fender liner",
-    "r&i wheel opening molding",
+    "r&i wheel opng mldg",
     "r&i mud guard",
-    "r&i corner molding",
-    "r&i rocker molding"
+    "r&i LT corner molding",
+    "r&i RT corner molding",
+    "r&i LT rocker molding",
+    "r&i RT rocker molding"
 ]
 
 # Normalize aliases for matching
