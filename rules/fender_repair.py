@@ -3,9 +3,11 @@ from utils import normalize, suggest_if_missing
 
 REPAIR_OPS = ["rpr", "repair", "rep"]
 FENDER_PARTS = ["fender", "fender panel", "fndr"]
+
+# Canonical suggestions
 ACCESSORY_ITEMS = [
     "r&i fender liner",
-    "r&i wheel opng mldg",
+    "r&i wheel opening molding",
     "r&i mud guard",
     "r&i LT corner molding",
     "r&i RT corner molding",
@@ -13,13 +15,15 @@ ACCESSORY_ITEMS = [
     "r&i RT rocker molding"
 ]
 
-# Normalize aliases for matching
+# Aliases for matching
 ACCESSORY_ALIASES = {
-    "r&i wheel opening molding": ["r&i wheel opng mldg", "r&i wheel opening molding"],
-    "r&i rocker molding": ["r&i rocker molding", "r&i rkr molding", "r&i rkr mldg", "r&i rocker mldg"],
-    "r&i corner molding": ["r&i corner molding"],
     "r&i fender liner": ["r&i fender liner"],
-    "r&i mud guard": ["r&i mud guard"]
+    "r&i wheel opening molding": ["r&i wheel opng mldg", "r&i wheel opening molding"],
+    "r&i mud guard": ["r&i mud guard"],
+    "r&i LT corner molding": ["r&i lt corner molding", "lt corner molding"],
+    "r&i RT corner molding": ["r&i rt corner molding", "rt corner molding"],
+    "r&i LT rocker molding": ["r&i lt rocker molding", "lt rocker molding", "r&i lt rkr molding", "lt rkr molding"],
+    "r&i RT rocker molding": ["r&i rt rocker molding", "rt rocker molding", "r&i rt rkr molding", "rt rkr molding"]
 }
 
 def fender_repair(lines, seen):
@@ -30,7 +34,7 @@ def fender_repair(lines, seen):
         words = norm.split()
 
         op_found = any(op in words for op in REPAIR_OPS)
-        part_found = any(part in words for part in FENDER_PARTS)
+        part_found = any(part in norm for part in FENDER_PARTS)
 
         if op_found and part_found:
             found_trigger = True
@@ -40,11 +44,15 @@ def fender_repair(lines, seen):
     if not found_trigger:
         return None
 
-    # Check if any accessory items are already present
+    # Filter out accessories already present
     missing = []
     for label, aliases in ACCESSORY_ALIASES.items():
-        already_present = any(normalize(line).find(normalize(alias)) != -1 for line in lines for alias in aliases)
-        if not already_present and label not in seen:
+        present = any(
+            normalize(alias) in normalize(line)
+            for line in lines
+            for alias in aliases
+        )
+        if not present and label not in seen:
             missing.append(label)
 
     if missing:
