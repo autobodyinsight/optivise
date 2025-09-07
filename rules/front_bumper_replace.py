@@ -6,7 +6,8 @@ REPLACE_PHRASES = [
     "repl bumper cover", "replace bumper cover",
     "repl fascia", "replace fascia",
     "repl bumper cover assy", "replace bumper cover assy",
-    "repl bumper cover assembly", "replace bumper cover assembly"
+    "repl bumper cover assembly", "replace bumper cover assembly",
+    "upper cover", "fascia"
 ]
 
 SUGGESTIONS = [
@@ -32,10 +33,10 @@ def front_bumper_replace_rule(lines, seen):
         section_lines.append(line)
         print(f"[FRONT BUMPER REPLACE RULE] Scanning line: {norm}")
 
-        # ✅ Looser context detection: any line mentioning "front bumper"
-        if "front bumper" in norm:
+        # ✅ Context detection: section header or part description
+        if "front bumper" in norm or "bumper cover" in norm or "fascia" in norm:
             bumper_context_detected = True
-            print("[FRONT BUMPER REPLACE RULE] ✅ Context match: front bumper")
+            print("[FRONT BUMPER REPLACE RULE] ✅ Context match")
 
         # ✅ Phrase-level detection
         for phrase in REPLACE_PHRASES:
