@@ -1,5 +1,5 @@
 import re
-from utils import normalize, suggest_if_missing
+from utils import normalize, normalize_orientation, normalize_operation, suggest_if_missing
 
 def rule_grille_adas(lines: list[str], seen: set[str]) -> tuple[str, list[str]] | None:
     """

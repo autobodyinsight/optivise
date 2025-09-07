@@ -1,5 +1,5 @@
 import re
-from utils import normalize
+from utils import normalize, normalize_orientation, normalize_operation, suggest_if_missing
 
 OPS = ["repl", "replace", "remove / replace", "rem / repl"]
 PARTS = ["impact bar", "rebar", "reinforcement beam", "reinforcement", "bumper beam"]

@@ -1,5 +1,5 @@
 import re
-from utils import normalize, suggest_if_missing
+from utils import normalize, normalize_orientation, normalize_operation, suggest_if_missing
 
 REPAIR_OPS = ["rpr", "repair", "rep"]
 REPLACE_OPS = ["replace", "repl", "remove / replace"]

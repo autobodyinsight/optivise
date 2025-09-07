@@ -1,5 +1,5 @@
 import re
-from utils import normalize
+from utils import normalize, normalize_orientation, normalize_operation, suggest_if_missing
 
 REPAIR_OPS = [
     "remove / install", "r&i", "remove / replace", "repl"
