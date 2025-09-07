@@ -17,10 +17,10 @@ ACCESSORY_ITEMS = [
 # Aliases for matching
 ACCESSORY_ALIASES = {
     "r&i fender liner": ["fender liner"],
-    "r&i wheel opening molding": ["wheel opng mldg", "flare", "wheel opening molding"],
-    "r&i mud guard": ["mud guard"],
-    "r&i corner molding": ["corner molding", "corner mldg"],
-    "r&i rocker molding": ["rocker molding", "rkr molding", "rocker mldg", "rkr mldg"]
+    "r&i wheel opening molding (if equipped)": ["wheel opng mldg", "flare", "wheel opening molding"],
+    "r&i mud guard (if equipped)": ["mud guard"],
+    "r&i corner molding (if equipped)": ["corner molding", "corner mldg"],
+    "r&i rocker molding (if equipped)": ["rocker molding", "rkr molding", "rocker mldg", "rkr mldg"]
 }
 
 def fender_repair(lines, seen):
