@@ -19,7 +19,7 @@ MISSED_ITEMS = [
 
 def bumper_rule(lines, seen):
     for line in lines:
-        normalized = normalize(line)
+        normalized = normalize_operation(normalize_orientation(line))
         words = normalized.split()
 
         op_found = any(op in words for op in REPAIR_OPS)

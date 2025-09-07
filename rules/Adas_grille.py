@@ -9,7 +9,7 @@ def rule_grille_adas(lines: list[str], seen: set[str]) -> tuple[str, list[str]] 
     grille_keywords = ["grille", "grill"]
 
     for line in lines:
-        norm = normalize(line)
+        norm = normalize_operation(normalize_orientation(line))
 
         if any(kw in norm for kw in action_keywords) and any(part in norm for part in grille_keywords):
             suggestions = suggest_if_missing(

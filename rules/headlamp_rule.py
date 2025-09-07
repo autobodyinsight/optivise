@@ -21,7 +21,7 @@ VERIFY_OPTIONS = [
 
 def headlamp_rule(lines, seen):
     for line in lines:
-        norm = normalize(line)
+        norm = normalize_operation(normalize_orientation(line))
 
         # Match any repair op and any headlight term in the same line, regardless of order
         op_found = any(re.search(rf"\b{re.escape(op)}\b", norm) for op in REPAIR_OPS)
@@ -32,7 +32,7 @@ def headlamp_rule(lines, seen):
             if "With adaptive headlights?" not in seen:
                 return (
                     "HEADLAMP VARIANT CHECK",
-                    ["With adaptive headlights?"] + ["VERIFY OPTIONS:"] + VERIFY_OPTIONS
+                    ["IF ADAPTIVE HEADLIGHTS, ADD CALIBRATION"] + ["VERIFY OPTIONS:"] + VERIFY_OPTIONS
                 )
 
     return None
