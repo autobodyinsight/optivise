@@ -2,12 +2,13 @@ import re
 from utils import normalize, suggest_if_missing
 
 REPAIR_OPS = ["rpr", "repair", "rep"]
+REPLACE_OPS = ["replace", "repl", "remove / replace"]
 FENDER_PARTS = ["fender", "fender panel", "fndr"]
 
 # Canonical suggestions
 ACCESSORY_ITEMS = [
     "r&i fender liner",
-    "r&i wheel opening molding",  # unified suggestion
+    "r&i wheel opening molding",
     "r&i mud guard",
     "r&i corner molding",
     "r&i rocker molding"
@@ -23,21 +24,26 @@ ACCESSORY_ALIASES = {
 }
 
 def fender_repair(lines, seen):
-    found_trigger = False
+    triggered = False
+    operation_type = None
 
     for line in lines:
         norm = normalize(line)
         words = norm.split()
 
-        op_found = any(op in words for op in REPAIR_OPS)
-        part_found = any(part in norm for part in FENDER_PARTS)
-
-        if op_found and part_found:
-            found_trigger = True
+        if any(op in words for op in REPAIR_OPS) and any(part in norm for part in FENDER_PARTS):
+            triggered = True
+            operation_type = "REPAIR"
             print(f"[FENDER REPAIR] ✅ Triggered on line: {line}")
             break
 
-    if not found_trigger:
+        if any(op in norm for op in REPLACE_OPS) and any(part in norm for part in FENDER_PARTS):
+            triggered = True
+            operation_type = "REPLACEMENT"
+            print(f"[FENDER REPLACEMENT] ✅ Triggered on line: {line}")
+            break
+
+    if not triggered:
         return None
 
     # Filter out accessories already present
@@ -51,8 +57,9 @@ def fender_repair(lines, seen):
             missing.append(label)
 
     if missing:
-        print(f"[FENDER REPAIR] 🎯 Suggestions returned: {missing}")
-        return ("FENDER REPAIR ACCESSORY CHECK", missing)
+        title = f"FENDER {operation_type} ACCESSORY CHECK"
+        print(f"[FENDER {operation_type}] 🎯 Suggestions returned: {missing}")
+        return (title, missing)
 
     return None
 
