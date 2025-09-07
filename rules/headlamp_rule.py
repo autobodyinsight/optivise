@@ -21,7 +21,8 @@ VERIFY_OPTIONS = [
 
 def headlamp_rule(lines, seen):
     for line in lines:
-        norm = normalize_operation(normalize_orientation(line))
+        combined = f"{line.description} {line.operation}"
+        norm = normalize_operation(normalize_orientation(combined))
 
         # Match any repair op and any headlight term in the same line, regardless of order
         op_found = any(re.search(rf"\b{re.escape(op)}\b", norm) for op in REPAIR_OPS)
