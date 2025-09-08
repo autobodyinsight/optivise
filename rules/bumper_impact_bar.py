@@ -16,8 +16,7 @@ def impact_bar_rule(lines, seen):
     paint_present = False
 
     for line in lines:
-        combined = f"{line.description} {line.operation}"
-        norm = normalize_operation(normalize_orientation(combined))
+        norm = normalize_operation(normalize_orientation(line))
         # matching logic here
 
         # Detect section entry: line contains a known bumper header

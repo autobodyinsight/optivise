@@ -28,8 +28,7 @@ def front_bumper_replace_rule(lines, seen):
     section_lines = []
 
     for line in lines:
-        combined = f"{line.description} {line.operation}"
-        norm = normalize_operation(normalize_orientation(combined))
+        norm = normalize_operation(normalize_orientation(line))
         section_lines.append(line)
         print(f"[FRONT BUMPER REPLACE RULE] Scanning line: {norm}")
 

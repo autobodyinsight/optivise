@@ -28,8 +28,7 @@ def fender_repair(lines, seen):
     operation_type = None
 
     for line in lines:
-        combined = f"{line.description} {line.operation}"
-        norm = normalize_operation(normalize_orientation(combined))
+        norm = normalize_operation(normalize_orientation(line))
         words = norm.split()
 
         if any(op in words for op in REPAIR_OPS) and any(part in norm for part in FENDER_PARTS):

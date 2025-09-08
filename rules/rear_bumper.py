@@ -33,10 +33,10 @@ def rear_bumper_rule(lines, seen):
             continue
 
         if in_rear_section:
-            normalized = normalize_operation(normalize_orientation(line))
+            norm = normalize_operation(normalize_orientation(line))
 
             # Check for adjacent repair + bumper term
-            adjacent_match = any(re.search(pattern, normalized) for pattern in REPAIR_BUMPER_PATTERNS)
+            adjacent_match = any(re.search(pattern, norm) for pattern in REPAIR_BUMPER_PATTERNS)
 
             if adjacent_match:
                 print("REAR BUMPER RULE FIRED ON:", line)

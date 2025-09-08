@@ -19,11 +19,11 @@ MISSED_ITEMS = [
 
 def bumper_rule(lines, seen):
     for line in lines:
-        normalized = normalize_operation(normalize_orientation(line))
-        words = normalized.split()
+        norm = normalize_operation(normalize_orientation(line))
+        words = norm.split()
 
         op_found = any(op in words for op in REPAIR_OPS)
-        part_found = any(re.search(rf"\b{re.escape(part.lower())}\b", normalized) for part in BUMPER_PARTS)
+        part_found = any(re.search(rf"\b{re.escape(part.lower())}\b", norm) for part in BUMPER_PARTS)
 
         if op_found and part_found:
             suggestions = suggest_if_missing(lines, MISSED_ITEMS, seen)
