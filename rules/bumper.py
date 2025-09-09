@@ -8,6 +8,9 @@ BUMPER_PARTS = [
 ]
 
 MISSED_ITEMS = [
+    "flex additive",
+    "adhesion promoter",
+    "bumper repair kit",
     "mask for texture (if applicable)",
     "mask for two tone (if applicable)",
     "feather, prime, and block",

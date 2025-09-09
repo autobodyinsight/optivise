@@ -11,6 +11,9 @@ REPLACE_PHRASES = [
 ]
 
 SUGGESTIONS = [
+    "prep unprimed bumper",
+    "adhesion promoter",
+    "flex additive",
     "static neutralization",
     "mask for texture",
     "mask for two tone",
