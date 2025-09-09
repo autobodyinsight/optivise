@@ -11,8 +11,6 @@ REPLACE_PHRASES = [
 ]
 
 SUGGESTIONS = [
-    "flex additive",
-    "adhesion promoter",
     "static neutralization",
     "mask for texture",
     "mask for two tone",

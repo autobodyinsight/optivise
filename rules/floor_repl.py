@@ -2,7 +2,7 @@ import re
 from utils import normalize, normalize_orientation, normalize_operation, suggest_if_missing
 
 REPLACE_OPS = ["repl"]
-REAR_BODY_IDENTIFIERS = ["rear body panel"]
+FLOOR_IDENTIFIERS = ["floor pan", "rear body floor pan"]
 
 SUGGESTIONS = [
     "adjacent repair LT quarter panel",
@@ -32,8 +32,8 @@ SUGGESTIONS = [
     "weld tabs for pulls"
 ]
 
-def rearbody_repl_rule(lines, seen):
-    print("🚀 rearbody_repl_rule fired")
+def floor_repl_rule(lines, seen):
+    print("🚀 floor_repl_rule fired")
     triggered = False
     mitchell_triggered = False
     section_lines = []
@@ -41,20 +41,20 @@ def rearbody_repl_rule(lines, seen):
     for i in range(len(lines)):
         norm = normalize_operation(normalize_orientation(lines[i]))
         section_lines.append(lines[i])
-        print(f"[REARBODY REPL RULE] Scanning line: {norm}")
+        print(f"[FLOOR REPL RULE] Scanning line: {norm}")
 
         # 🔍 Standard CCC-style detection
-        if "rear body panel" in norm and any(op in norm for op in REPLACE_OPS):
+        if any(floor in norm for floor in FLOOR_IDENTIFIERS) and any(op in norm for op in REPLACE_OPS):
             triggered = True
-            print(f"[REARBODY REPL RULE] ✅ Standard trigger on line: {lines[i]}")
+            print(f"[FLOOR REPL RULE] ✅ Standard trigger on line: {lines[i]}")
             break
 
         # 🔍 Mitchell-style pairing detection
         if i > 0:
             prev_norm = normalize_operation(normalize_orientation(lines[i - 1]))
-            if "remove" in prev_norm and "rear body panel" in prev_norm and "/ replace" in norm:
+            if "remove" in prev_norm and any(floor in prev_norm for floor in FLOOR_IDENTIFIERS) and "/ replace" in norm:
                 mitchell_triggered = True
-                print(f"[REARBODY REPL RULE] ✅ Mitchell-style trigger matched at index {i-1}/{i}")
+                print(f"[FLOOR REPL RULE] ✅ Mitchell-style trigger matched at index {i-1}/{i}")
                 break
 
     if not triggered and not mitchell_triggered:
@@ -62,11 +62,11 @@ def rearbody_repl_rule(lines, seen):
 
     missing = suggest_if_missing(section_lines, SUGGESTIONS, seen)
     if missing:
-        print(f"[REARBODY REPL RULE] 🎯 Suggestions returned: {missing}")
-        return ("REAR BODY PANEL REPLACEMENT CHECK", missing)
+        print(f"[FLOOR REPL RULE] 🎯 Suggestions returned: {missing}")
+        return ("FLOOR PAN REPLACEMENT CHECK", missing)
 
     return None
 
 def register():
-    print("✅ rearbody_repl_rule registered")
-    return [rearbody_repl_rule]
+    print("✅ floor_repl_rule registered")
+    return [floor_repl_rule]
