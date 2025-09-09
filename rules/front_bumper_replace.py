@@ -1,5 +1,6 @@
 import re
 from utils import normalize, normalize_orientation, normalize_operation, suggest_if_missing
+
 REPLACE_PHRASES = [
     "repl bumper", "replace bumper",
     "repl bumper cover", "replace bumper cover",
@@ -25,14 +26,15 @@ def front_bumper_replace_rule(lines, seen):
     print("🚀 front_bumper_replace_rule fired")
     bumper_context_detected = False
     phrase_detected = False
+    mitchell_triggered = False
     section_lines = []
 
-    for line in lines:
-        norm = normalize_operation(normalize_orientation(line))
-        section_lines.append(line)
+    for i in range(len(lines)):
+        norm = normalize_operation(normalize_orientation(lines[i]))
+        section_lines.append(lines[i])
         print(f"[FRONT BUMPER REPLACE RULE] Scanning line: {norm}")
 
-        # ✅ Context detection: section header or part description
+        # ✅ Context detection
         if "front bumper" in norm or "bumper cover" in norm or "fascia" in norm:
             bumper_context_detected = True
             print("[FRONT BUMPER REPLACE RULE] ✅ Context match")
@@ -43,7 +45,14 @@ def front_bumper_replace_rule(lines, seen):
                 phrase_detected = True
                 print(f"[FRONT BUMPER REPLACE RULE] ✅ Phrase detected: {phrase}")
 
-    if bumper_context_detected and phrase_detected:
+        # ✅ Mitchell-style trigger detection
+        if i > 0:
+            prev_norm = normalize_operation(normalize_orientation(lines[i - 1]))
+            if ("remove" in prev_norm and "bumper cover" in prev_norm) and ("/ replace" in norm or "/ install" in norm):
+                mitchell_triggered = True
+                print(f"[FRONT BUMPER REPLACE RULE] ✅ Mitchell-style trigger matched at index {i-1}/{i}")
+
+    if (bumper_context_detected and phrase_detected) or mitchell_triggered:
         missing = suggest_if_missing(section_lines, SUGGESTIONS, seen)
         if missing:
             print(f"[FRONT BUMPER REPLACE RULE] 🎯 Suggestions returned: {missing}")
