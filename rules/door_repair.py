@@ -23,20 +23,30 @@ CONDITIONAL_ALIASES = {
 
 def door_repair_rule(lines, seen):
     triggered = False
+    mitchell_triggered = False
     section_lines = []
 
-    for line in lines:
-        norm = normalize_operation(normalize_orientation(line))
-        section_lines.append(line)
+    for i in range(len(lines)):
+        norm = normalize_operation(normalize_orientation(lines[i]))
+        section_lines.append(lines[i])
 
-        # Match estimate-style phrasing
+        # 🔍 Standard CCC-style detection
         if any(idf in norm for idf in DOOR_IDENTIFIERS):
-            if "rpr" in norm or "repair" in norm or "rpr lt outer panel" in norm:
+            if any(op in norm for op in REPAIR_OPS) or "rpr lt outer panel" in norm:
                 triggered = True
-                print(f"[DOOR REPAIR] ✅ Triggered on line: {line}")
+                print(f"[DOOR REPAIR] ✅ Standard trigger on line: {lines[i]}")
                 break
 
-    if not triggered:
+        # 🔍 Mitchell-style pairing detection (ONLY / replace)
+        if i > 0:
+            prev_norm = normalize_operation(normalize_orientation(lines[i - 1]))
+            if "remove" in prev_norm and "frt door repair panel" in prev_norm:
+                if "/ replace" in norm:
+                    mitchell_triggered = True
+                    print(f"[DOOR REPAIR] ✅ Mitchell-style trigger matched at index {i-1}/{i}")
+                    break
+
+    if not triggered and not mitchell_triggered:
         return None
 
     missing_required = []
