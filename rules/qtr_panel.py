@@ -2,9 +2,21 @@ import re
 from utils import normalize, normalize_orientation, normalize_operation, suggest_if_missing
 
 REPAIR_OPS = ["repair", "rpr"]
-QTR_IDENTIFIERS = ["quarter panel", "quarter outer panel"]
+REPLACE_OPS = ["repl"]
+QTR_IDENTIFIERS = [
+    "quarter panel",
+    "quarter outer panel",
+    "lt quarter panel",
+    "rt quarter panel",
+    "l quarter panel",
+    "r quarter panel",
+    "lt quarter outer panel",
+    "rt quarter outer panel",
+    "l quarter outer panel",
+    "r quarter outer panel"
+]
 
-SUGGESTIONS = [
+FULL_SUGGESTIONS = [
     "adjacent repair rocker panel",
     "adjacent repair rear body",
     "adjacent repair floor",
@@ -18,10 +30,21 @@ SUGGESTIONS = [
     "r&i fuel door (if needed)"
 ]
 
+REDUCED_SUGGESTIONS = [
+    "blend roof rail",
+    "blend rocker panel",
+    "blnd roof rail",
+    "blnd rocker panel",
+    "r&i liner",
+    "r&i qtr glass",
+    "r&i roof molding",
+    "r&i fuel door (if needed)"
+]
+
 def qtr_panel_rule(lines, seen):
     print("🚀 qtr_panel_rule fired")
-    triggered = False
-    mitchell_triggered = False
+    repair_triggered = False
+    replacement_triggered = False
     section_lines = []
 
     for i in range(len(lines)):
@@ -29,27 +52,31 @@ def qtr_panel_rule(lines, seen):
         section_lines.append(lines[i])
         print(f"[QTR PANEL RULE] Scanning line: {norm}")
 
-        # 🔍 Standard CCC-style detection
+        # 🔍 Repair detection
         if any(qtr in norm for qtr in QTR_IDENTIFIERS) and any(op in norm for op in REPAIR_OPS):
-            triggered = True
-            print(f"[QTR PANEL RULE] ✅ Standard trigger on line: {lines[i]}")
-            break
+            repair_triggered = True
+            print(f"[QTR PANEL RULE] ✅ Repair trigger on line: {lines[i]}")
 
-        # 🔍 Mitchell-style pairing detection
+        # 🔍 CCC-style replacement detection
+        if any(qtr in norm for qtr in QTR_IDENTIFIERS) and any(op in norm for op in REPLACE_OPS):
+            replacement_triggered = True
+            print(f"[QTR PANEL RULE] ✅ CCC-style replacement trigger on line: {lines[i]}")
+
+        # 🔍 Mitchell-style replacement detection
         if i > 0:
             prev_norm = normalize_operation(normalize_orientation(lines[i - 1]))
             if "remove" in prev_norm and "quarter outer panel" in prev_norm and "/ replace" in norm:
-                mitchell_triggered = True
-                print(f"[QTR PANEL RULE] ✅ Mitchell-style trigger matched at index {i-1}/{i}")
-                break
+                replacement_triggered = True
+                print(f"[QTR PANEL RULE] ✅ Mitchell-style replacement trigger matched at index {i-1}/{i}")
 
-    if not triggered and not mitchell_triggered:
+    if not repair_triggered and not replacement_triggered:
         return None
 
-    missing = suggest_if_missing(section_lines, SUGGESTIONS, seen)
+    suggestions = FULL_SUGGESTIONS if replacement_triggered else REDUCED_SUGGESTIONS
+    missing = suggest_if_missing(section_lines, suggestions, seen)
     if missing:
         print(f"[QTR PANEL RULE] 🎯 Suggestions returned: {missing}")
-        return ("QUARTER PANEL REPAIR CHECK", missing)
+        return ("QUARTER PANEL CHECK", missing)
 
     return None
 
