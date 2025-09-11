@@ -57,7 +57,7 @@ def bumper_replace_rule(lines, seen):
         missing = suggest_if_missing(section_lines, SUGGESTIONS, seen)
         if missing:
             print(f"[BUMPER REPLACE RULE] 🎯 Suggestions returned: {missing}")
-            return ("FRONT BUMPER REPLACEMENT CHECK", missing)
+            return ("BUMPER REPLACEMENT CHECK", missing)
 
     return None
 
