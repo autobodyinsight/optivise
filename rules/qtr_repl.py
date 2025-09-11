@@ -2,7 +2,18 @@ import re
 from utils import normalize, normalize_orientation, normalize_operation, suggest_if_missing
 
 REPLACE_OPS = ["repl"]
-QTR_IDENTIFIERS = ["quarter panel", "quarter outer panel"]
+QTR_IDENTIFIERS = [
+    "quarter panel",
+    "quarter outer panel",
+    "lt quarter panel",
+    "rt quarter panel",
+    "l quarter panel",
+    "r quarter panel",
+    "lt quarter outer panel",
+    "rt quarter outer panel",
+    "l quarter outer panel",
+    "r quarter outer panel"
+]
 
 SUGGESTIONS = [
     "weldthrough primer",
@@ -21,6 +32,8 @@ def qtr_repl_rule(lines, seen):
     mitchell_triggered = False
     section_lines = []
 
+    trigger_index = None
+
     for i in range(len(lines)):
         norm = normalize_operation(normalize_orientation(lines[i]))
         section_lines.append(lines[i])
@@ -29,6 +42,7 @@ def qtr_repl_rule(lines, seen):
         # 🔍 Standard CCC-style detection
         if any(part in norm for part in QTR_IDENTIFIERS) and any(op in norm for op in REPLACE_OPS):
             triggered = True
+            trigger_index = i
             print(f"[QTR REPL RULE] ✅ Standard trigger on line: {lines[i]}")
             break
 
@@ -37,19 +51,11 @@ def qtr_repl_rule(lines, seen):
             prev_norm = normalize_operation(normalize_orientation(lines[i - 1]))
             if "remove" in prev_norm and any(part in prev_norm for part in QTR_IDENTIFIERS) and "/ replace" in norm:
                 mitchell_triggered = True
+                trigger_index = i
                 print(f"[QTR REPL RULE] ✅ Mitchell-style trigger matched at index {i-1}/{i}")
                 break
 
     if not triggered and not mitchell_triggered:
         return None
 
-    missing = suggest_if_missing(section_lines, SUGGESTIONS, seen)
-    if missing:
-        print(f"[QTR REPL RULE] 🎯 Suggestions returned: {missing}")
-        return ("QUARTER PANEL MATERIAL CHECK", missing)
-
-    return None
-
-def register():
-    print("✅ qtr_repl_rule registered")
-    return [qtr_repl_rule]
+    # 🔁 Continue collecting lines after trigger for
