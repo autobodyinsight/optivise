@@ -1,79 +1,65 @@
 import re
 from utils import normalize
 
-def build_origin_check_rule(lines, seen):
-    print("🚀 build_origin_check_rule fired")
+def vehicle_identifier_rule(lines, seen):
+    print("🚀 vehicle_identifier_rule fired")
 
+    vehicle_info = None
     vin = None
     origin = None
 
-    # 🔍 Extract VIN
+    # 🔍 Extract vehicle description and VIN
     for line in lines:
         norm = normalize(line)
-        vin_match = re.search(r"\bvin[:\s]*([a-hj-npr-z0-9]{17})\b", norm)
-        if vin_match:
-            vin = vin_match.group(1).upper()
-            break
-        standalone_match = re.search(r"\b[a-hj-npr-z0-9]{17}\b", norm)
-        if standalone_match:
-            vin = standalone_match.group(0).upper()
-            break
 
-    if not vin:
-        print("[BUILD ORIGIN CHECK] ❌ No VIN found, skipping rule")
-        return None
+        # Match CCC or Mitchell-style vehicle description
+        if not vehicle_info and re.search(r"\b\d{4}\b.*\bkia\b.*\bniro\b", norm):
+            vehicle_info = line.strip()
+            print(f"[VEHICLE IDENTIFIER] ✅ Vehicle info found: {vehicle_info}")
 
-    # 🌍 Determine build origin
-    prefix = vin[:2]
-    first = vin[0]
+        # Match VIN (prefixed or standalone)
+        if not vin:
+            vin_match = re.search(r"\bvin[:\s]*([a-hj-npr-z0-9]{17})\b", norm)
+            if vin_match:
+                vin = vin_match.group(1).upper()
+                print(f"[VEHICLE IDENTIFIER] ✅ VIN found (prefixed): {vin}")
+            else:
+                standalone_match = re.search(r"\b[a-hj-npr-z0-9]{17}\b", norm)
+                if standalone_match:
+                    vin = standalone_match.group(0).upper()
+                    print(f"[VEHICLE IDENTIFIER] ✅ VIN found (standalone): {vin}")
 
-    if prefix in ["RF", "RK"]:
-        origin = "Taiwan"
-    elif prefix in ["3A", "3W"]:
-        origin = "Mexico"
-    elif first == "J":
-        origin = "Japan"
-    elif first == "K":
-        origin = "Korea"
-    elif first == "L":
-        origin = "China"
-    elif first in ["1", "4", "5"]:
-        origin = "United States"
-    elif first == "2":
-        origin = "Canada"
+    # 🌍 Determine build origin from VIN
+    if vin and len(vin) == 17:
+        prefix = vin[:2]
+        first = vin[0]
 
-    if not origin:
-        print("[BUILD ORIGIN CHECK] ❌ No origin derived from VIN")
-        return None
+        origin_map = {
+            "RF": "Taiwan", "RK": "Taiwan",
+            "3A": "Mexico", "3W": "Mexico",
+            "J": "Japan", "K": "Korea", "L": "China",
+            "1": "United States", "4": "United States", "5": "United States",
+            "2": "Canada"
+        }
 
-    print(f"[BUILD ORIGIN CHECK] ✅ VIN: {vin} → Origin: {origin}")
+        origin = origin_map.get(prefix) or origin_map.get(first)
+        if origin:
+            print(f"[VEHICLE IDENTIFIER] 🌍 Built Origin: {origin}")
 
-    # 🔍 Scan for mismatched build origin mentions
-    mismatches = []
-    origin_lower = origin.lower()
-    found = False
-
-    for line in lines:
-        norm = normalize(line).lower()
-        match = re.search(r"\b(japan|korea|china|taiwan|united states|canada|mexico)\b.*\b(build|built)\b", norm)
-        if match:
-            found = True
-            mentioned = match.group(1)
-            if mentioned != origin_lower:
-                mismatches.append(
-                    f"⚠️ Build origin mismatch: '{line.strip()}' mentions '{mentioned.title()}' but VIN indicates '{origin}'"
-                )
-
-    if not found:
-        print("[BUILD ORIGIN CHECK] ℹ️ No build origin mentioned in estimate, skipping suggestions")
-        return None
-
-    if mismatches:
-        print(f"[BUILD ORIGIN CHECK] 🎯 Mismatches found: {len(mismatches)}")
-        return ("VERIFY VEHICLE BUILD ORIGIN", mismatches)
+    # 📦 Final output
+    if vehicle_info or vin:
+        output = []
+        if vehicle_info:
+            output.append(f"📌 Vehicle: {vehicle_info}")
+        if vin:
+            output.append(f"🔑 VIN: {vin}")
+        if origin:
+            output.append(f"🌍 Built Origin: {origin}")
+        print("\n".join(output))
+        return ("VEHICLE IDENTIFIER", output)
 
     return None
 
 def register():
-    print("✅ build_origin_check_rule registered")
-    return [build_origin_check_rule]
+    print("✅ vehicle_identifier_rule registered")
+    return [vehicle_identifier_rule]
