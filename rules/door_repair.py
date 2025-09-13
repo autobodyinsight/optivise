@@ -4,7 +4,8 @@ from utils import normalize, normalize_orientation, normalize_operation, suggest
 REPAIR_OPS = ["repair", "rpr"]
 DOOR_IDENTIFIERS = [
     "outer panel",
-    "frt door repair panel"
+    "frt door repair panel",
+    "door shell"
 ]
 
 REQUIRED_ALIASES = {
