@@ -6,6 +6,7 @@ def vehicle_identifier_rule(lines, seen):
 
     vin = None
     origin = None
+    vehicle_info = None
     flagged_blocks = []
     used_indices = set()
 
@@ -44,6 +45,15 @@ def vehicle_identifier_rule(lines, seen):
 
     print(f"[VEHICLE IDENTIFIER] ✅ VIN: {vin} → Origin: {origin}")
 
+    # 🚗 Identify full vehicle info line by year match
+    for line in lines:
+        norm = normalize(line)
+        year_match = re.search(r"\b(19[6-9]\d|20[0-2]\d|2026)\b", norm)
+        if year_match:
+            vehicle_info = f"🚗 Vehicle Info: {line.strip()}"
+            print(f"[VEHICLE IDENTIFIER] ✅ Vehicle Info: {vehicle_info}")
+            break
+
     # 🔍 Scan for build origin mentions across lines
     origin_phrases = {
         "taiwan built": "Taiwan",
@@ -76,10 +86,12 @@ def vehicle_identifier_rule(lines, seen):
                     flagged_blocks.append(
                         f"⚠️ VIN indicates '{origin}', but estimate mentions '{expected_origin}':\n{block}"
                     )
-                break  # Stop checking other phrases once matched
+                break
 
+    suggestions = [f"🔑 VIN: {vin}", f"🌍 Build Origin: {origin}"]
+    if vehicle_info:
+        suggestions.append(vehicle_info)
     if flagged_blocks:
-        print(f"[VEHICLE IDENTIFIER] 🎯 Mismatches found: {len(flagged_blocks)}")
-        return ("VEHICLE IDENTIFIER", [f"🔑 VIN: {vin}", f"🌍 Build Origin: {origin}"] + flagged_blocks)
+        suggestions.extend(flagged_blocks)
 
-    return ("VEHICLE IDENTIFIER", [f"🔑 VIN: {vin}", f"🌍 Build Origin: {origin}"])
+    return ("VEHICLE IDENTIFIER", suggestions)
