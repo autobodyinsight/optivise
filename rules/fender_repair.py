@@ -2,10 +2,9 @@ import re
 from utils import normalize, normalize_orientation, normalize_operation, suggest_if_missing
 
 REPAIR_OPS = ["rpr", "repair", "rep"]
-REPLACE_OPS = ["replace", "repl", "remove / replace"]
+REPLACE_OPS = ["replace", "repl", "remove / replace", "lkq", "assy"]
 FENDER_PARTS = ["fender", "fender panel", "fndr"]
 
-# Canonical suggestions
 ACCESSORY_ITEMS = [
     "r&i fender liner",
     "r&i wheel opening molding",
@@ -14,7 +13,6 @@ ACCESSORY_ITEMS = [
     "r&i rocker molding"
 ]
 
-# Aliases for matching
 ACCESSORY_ALIASES = {
     "r&i fender liner": ["fender liner"],
     "r&i wheel opening molding (if equipped)": ["wheel opng mldg", "flare", "wheel opening molding"],
@@ -29,9 +27,9 @@ def fender_repair(lines, seen):
 
     for line in lines:
         norm = normalize_operation(normalize_orientation(line))
-        words = norm.split()
+        print(f"[FENDER RULE] 🔍 Normalized line: {norm}")
 
-        if any(op in words for op in REPAIR_OPS) and any(part in norm for part in FENDER_PARTS):
+        if any(op in norm for op in REPAIR_OPS) and any(part in norm for part in FENDER_PARTS):
             triggered = True
             operation_type = "REPAIR"
             print(f"[FENDER REPAIR] ✅ Triggered on line: {line}")
@@ -46,7 +44,6 @@ def fender_repair(lines, seen):
     if not triggered:
         return None
 
-    # Filter out accessories already present
     missing = []
     for label, aliases in ACCESSORY_ALIASES.items():
         present = any(
