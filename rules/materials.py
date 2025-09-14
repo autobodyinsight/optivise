@@ -1,75 +1,57 @@
 import re
-from utils import normalize, suggest_if_missing
+from utils import normalize
 
-# 🔧 Material items to suggest
-MATERIAL_ITEMS = {
-    "outer panel": [
-        "weldthrough primer", "weld through primer", "cavity wax", "corrosion protection",
-        "bonding foam", "anti flutter foam", "sound deadening pad", "panel bond"
-    ],
-    "quarter panel": [
-        "weldthrough primer", "weld through primer", "cavity wax", "corrosion protection",
-        "bonding foam", "anti flutter foam", "sound deadening pad", "seam sealer", "panel bond"
-    ],
-    "floor pan": [
-        "weldthrough primer", "weld through primer", "cavity wax", "corrosion protection",
-        "bonding foam", "anti flutter foam", "sound deadening pad", "seam sealer", "panel bond"
-    ],
-    "rear body panel": [
-        "weldthrough primer", "weld through primer", "cavity wax", "corrosion protection",
-        "seam sealer", "panel bond"
-    ]
-}
+# 🔧 Refinishing materials to suggest
+REFINISH_ITEMS = [
+    "weldthrough primer", "weld through primer",
+    "cavity wax", "corrosion protection",
+    "bonding foam", "anti flutter foam",
+    "sound deadening pad", "panel bond"
+]
 
-# 🔍 Match triggers
-REPLACE_TRIGGERS = ["repl", "replace", "/replace"]
+# 🔍 Trigger phrases
+REPLACE_TRIGGERS = ["repl", "/replace"]
 REMOVE_TRIGGERS = ["remove"]
-COMPONENT_TRIGGERS = {
-    "outer panel": ["outer panel", "door repair panel"],
-    "quarter panel": ["quarter panel", "quarter outer panel"],
-    "floor pan": ["floor pan", "rear body floor pan"],
-    "rear body panel": ["rear body panel"]
-}
+PART_TRIGGERS = [
+    "outer panel", "frt door repair panel",
+    "quarter outer panel", "rear body panel",
+    "floor pan", "rear body floor pan"
+]
 
 def materials_rule(lines, seen):
-    suggestions = []
     normalized_lines = [normalize(line) for line in lines]
+    triggered_phrases = []
 
     for idx, norm in enumerate(normalized_lines):
-        # 🔍 Check direct replacement line
-        for component, aliases in COMPONENT_TRIGGERS.items():
-            if any(rep in norm for rep in REPLACE_TRIGGERS) and any(alias in norm for alias in aliases):
-                print(f"[MATERIALS] ✅ Direct replacement detected: {lines[idx]}")
-                suggestions += missing_materials(lines, component, seen)
-                break
+        current_line = norm
+        prev_line = normalized_lines[idx - 1] if idx > 0 else ""
 
-        # 🔍 Check Mitchell-style: /replace + line above has remove + component
-        if any(rep in norm for rep in REPLACE_TRIGGERS) and idx > 0:
-            prev = normalized_lines[idx - 1]
-            for component, aliases in COMPONENT_TRIGGERS.items():
-                if any(rem in prev for rem in REMOVE_TRIGGERS) and any(alias in prev for alias in aliases):
-                    print(f"[MATERIALS] ✅ Mitchell-style replacement detected:\n→ {lines[idx - 1]}\n→ {lines[idx]}")
-                    suggestions += missing_materials(lines, component, seen)
-                    break
+        # 🔍 Check if current line is a replacement
+        if any(rep in current_line for rep in REPLACE_TRIGGERS):
+            # 🔍 Check if previous line is a removal
+            if any(rem in prev_line for rem in REMOVE_TRIGGERS):
+                # 🔍 Check if either line mentions a target part
+                if any(part in current_line for part in PART_TRIGGERS) or any(part in prev_line for part in PART_TRIGGERS):
+                    phrase = f"{lines[idx - 1]} → {lines[idx]}" if idx > 0 else lines[idx]
+                    triggered_phrases.append(phrase)
 
-    if suggestions:
-        return ("MATERIALS & REFINISH CHECK", suggestions)
-    return None
-
-# 🧠 Check for missing refinishing materials
-def missing_materials(lines, component, seen):
-    required = MATERIAL_ITEMS[component]
+    # 🧹 Deduplicate and filter suggestions
     found = set()
-
     for line in lines:
         norm = normalize(line)
-        for item in required:
+        for item in REFINISH_ITEMS:
             if item in norm:
                 found.add(item)
 
-    missing = [item for item in required if item not in found and item not in seen]
-    print(f"[MATERIALS] 🎯 Missing for '{component}': {missing}")
-    return missing
+    missing = [item for item in REFINISH_ITEMS if item not in found and item not in seen]
+
+    if missing and triggered_phrases:
+        for phrase in triggered_phrases:
+            print(f"[MATERIALS] 🔥 Triggered by: {phrase}")
+        print(f"[MATERIALS] 🎯 Missing refinishing items: {missing}")
+        return ("MATERIALS & REFINISH CHECK", missing)
+
+    return None
 
 def register():
     return [materials_rule]
