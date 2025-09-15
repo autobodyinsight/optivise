@@ -45,11 +45,17 @@ def vehicle_identifier_rule(lines, seen):
 
     print(f"[VEHICLE IDENTIFIER] ✅ VIN: {vin} → Origin: {origin}")
 
-    # 🚗 Identify full vehicle info line by year match
+    # 🚗 Identify full vehicle info line by year + vehicle keywords
+    vehicle_keywords = [
+        "kia", "honda", "ford", "chevy", "toyota", "bmw", "mercedes", "hyundai", "nissan",
+        "utv", "sedan", "coupe", "suv", "truck", "van", "wagon", "awd", "fwd", "rwd",
+        "hybrid", "gasoline", "electric", "touring", "limited", "se", "le", "xl", "xle"
+    ]
+
     for line in lines:
-        norm = normalize(line)
+        norm = normalize(line).lower()
         year_match = re.search(r"\b(19[6-9]\d|20[0-2]\d|2026)\b", norm)
-        if year_match:
+        if year_match and any(keyword in norm for keyword in vehicle_keywords):
             vehicle_info = f"🚗 Vehicle Info: {line.strip()}"
             print(f"[VEHICLE IDENTIFIER] ✅ Vehicle Info: {vehicle_info}")
             break
