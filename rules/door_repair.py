@@ -2,6 +2,7 @@ import re
 from utils import normalize, normalize_orientation, normalize_operation, suggest_if_missing
 
 REPAIR_OPS = ["repair", "rpr"]
+REPLACE_OPS = ["repl"]
 DOOR_IDENTIFIERS = [
     "outer panel",
     "frt door repair panel",
@@ -23,6 +24,7 @@ CONDITIONAL_ALIASES = {
 }
 
 def door_repair_rule(lines, seen):
+    print("🚀 door_repair_rule fired")
     triggered = False
     mitchell_triggered = False
     section_lines = []
@@ -31,14 +33,18 @@ def door_repair_rule(lines, seen):
         norm = normalize_operation(normalize_orientation(lines[i]))
         section_lines.append(lines[i])
 
-        # 🔍 Standard CCC-style detection
+        # 🔍 CCC-style repair or replacement detection
         if any(idf in norm for idf in DOOR_IDENTIFIERS):
             if any(op in norm for op in REPAIR_OPS) or "rpr lt outer panel" in norm:
                 triggered = True
-                print(f"[DOOR REPAIR] ✅ Standard trigger on line: {lines[i]}")
+                print(f"[DOOR REPAIR] ✅ Repair trigger on line: {lines[i]}")
+                break
+            if any(op in norm for op in REPLACE_OPS):
+                triggered = True
+                print(f"[DOOR REPAIR] ✅ Replacement trigger on line: {lines[i]}")
                 break
 
-        # 🔍 Mitchell-style pairing detection (ONLY / replace)
+        # 🔍 Mitchell-style pairing detection (remove + / replace)
         if i > 0:
             prev_norm = normalize_operation(normalize_orientation(lines[i - 1]))
             if "remove" in prev_norm and "frt door repair panel" in prev_norm:
@@ -50,6 +56,7 @@ def door_repair_rule(lines, seen):
     if not triggered and not mitchell_triggered:
         return None
 
+    # 🧩 Suggest missing accessories
     missing_required = []
     for label, aliases in REQUIRED_ALIASES.items():
         present = any(
