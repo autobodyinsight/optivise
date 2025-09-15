@@ -54,7 +54,7 @@ def fender_repair(lines, seen):
             missing.append(label)
 
     if missing:
-        title = f"FENDER {operation_type} ACCESSORY CHECK"
+        title = f"FENDER {operation_type} CHECK"
         print(f"[FENDER {operation_type}] 🎯 Suggestions returned: {missing}")
         return (title, missing)
 

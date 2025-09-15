@@ -20,7 +20,6 @@ MITCHELL_IDENTIFIERS = [
 
 SUGGESTIONS = [
     "weldthrough primer",
-    "weld through primer",
     "panel bond",
     "bonding foam",
     "sound deadening",

@@ -30,16 +30,11 @@ FULL_SUGGESTIONS = [
     "r&i fuel door (if needed)"
 ]
 
-REDUCED_SUGGESTIONS = [
-    "blend roof rail",
-    "blend rocker panel",
-    "blnd roof rail",
-    "blnd rocker panel",
-    "r&i liner",
-    "r&i qtr glass",
-    "r&i roof molding",
-    "r&i fuel door (if needed)"
-]
+ADJACENT_REPAIR_EXCLUSIONS = {
+    "adjacent repair rocker panel",
+    "adjacent repair rear body",
+    "adjacent repair floor"
+}
 
 def qtr_panel_rule(lines, seen):
     print("🚀 qtr_panel_rule fired")
@@ -72,7 +67,14 @@ def qtr_panel_rule(lines, seen):
     if not repair_triggered and not replacement_triggered:
         return None
 
-    suggestions = FULL_SUGGESTIONS if replacement_triggered else REDUCED_SUGGESTIONS
+    # 🎯 Dynamic suggestion filtering
+    if replacement_triggered:
+        suggestions = FULL_SUGGESTIONS
+    elif repair_triggered:
+        suggestions = [s for s in FULL_SUGGESTIONS if s not in ADJACENT_REPAIR_EXCLUSIONS]
+    else:
+        suggestions = []
+
     missing = suggest_if_missing(section_lines, suggestions, seen)
     if missing:
         print(f"[QTR PANEL RULE] 🎯 Suggestions returned: {missing}")
