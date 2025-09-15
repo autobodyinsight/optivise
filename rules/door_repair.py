@@ -19,7 +19,7 @@ REQUIRED_ALIASES = {
 CONDITIONAL_ALIASES = {
     "r&i run channel (if by design)": ["run channel"],
     "r&i door glass (if by design)": ["door glass", "glass"],
-    "r&i carrier (if by design)": ["carrier", "glass carrier"]
+    "r&i carrier (if by design)": ["carrier", "regulator module"]
 }
 
 def door_repair_rule(lines, seen):
