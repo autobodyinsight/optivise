@@ -35,6 +35,7 @@ def vehicle_identifier_rule(lines, seen):
         "3": "Mexico",
         "W": "Germany",
         "Y": "Sweden/Finland",
+        "S": "England",
         "J": "Japan", "K": "Korea", "L": "China",
         "1": "United States", "4": "United States", "5": "United States",
         "2": "Canada"
