@@ -32,7 +32,7 @@ def vehicle_identifier_rule(lines, seen):
 
     origin_map = {
         "RF": "Taiwan", "RK": "Taiwan",
-        "3A": "Mexico", "3W": "Mexico",
+        "3": "Mexico",
         "J": "Japan", "K": "Korea", "L": "China",
         "1": "United States", "4": "United States", "5": "United States",
         "2": "Canada"
