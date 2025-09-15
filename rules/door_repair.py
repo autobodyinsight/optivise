@@ -5,6 +5,7 @@ REPAIR_OPS = ["repair", "rpr"]
 REPLACE_OPS = ["repl"]
 DOOR_IDENTIFIERS = [
     "outer panel",
+    "door assy",
     "frt door repair panel",
     "door shell"
 ]

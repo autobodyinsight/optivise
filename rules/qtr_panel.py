@@ -6,6 +6,7 @@ REPLACE_OPS = ["repl"]
 QTR_IDENTIFIERS = [
     "quarter panel",
     "quarter outer panel",
+    "quarter pnl"
     "lt quarter panel",
     "rt quarter panel",
     "l quarter panel",
