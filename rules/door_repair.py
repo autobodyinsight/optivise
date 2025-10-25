@@ -39,11 +39,11 @@ def door_repair_rule(lines, seen):
             if any(op in norm for op in REPAIR_OPS) or "rpr lt outer panel" in norm:
                 triggered = True
                 print(f"[DOOR REPAIR] ✅ Repair trigger on line: {lines[i]}")
-                break
+                
             if any(op in norm for op in REPLACE_OPS):
                 triggered = True
                 print(f"[DOOR REPAIR] ✅ Replacement trigger on line: {lines[i]}")
-                break
+                
 
         # 🔍 Mitchell-style pairing detection (remove + / replace)
         if i > 0:
@@ -52,7 +52,7 @@ def door_repair_rule(lines, seen):
                 if "/ replace" in norm:
                     mitchell_triggered = True
                     print(f"[DOOR REPAIR] ✅ Mitchell-style trigger matched at index {i-1}/{i}")
-                    break
+                    
 
     if not triggered and not mitchell_triggered:
         return None
