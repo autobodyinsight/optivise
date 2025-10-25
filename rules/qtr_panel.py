@@ -21,8 +21,6 @@ FULL_SUGGESTIONS = [
     "adjacent repair rocker panel",
     "adjacent repair rear body",
     "adjacent repair floor",
-    "blend roof rail",
-    "blend rocker panel",
     "blnd roof rail",
     "blnd rocker panel",
     "r&i liner",
